@@ -92,9 +92,6 @@ export default function SparkLine({ data, currentIndex, height = 40, fade = fals
         {/* Bezier line with gradient */}
         <path d={pathData} fill="none" stroke={`url(#${lineId})`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         
-        {/* Vertical line at current time */}
-        <line x1={currentPoint[0]} y1="0" x2={currentPoint[0]} y2={height} stroke="rgba(59, 130, 246, 0.4)" strokeWidth="1.5" strokeDasharray="3,2" />
-        
         {/* Current point marker */}
         <circle cx={currentPoint[0]} cy={currentPoint[1]} r="3.5" fill={getDotColor(values[currentIndex])} className="animate-pulse" />
       </svg>

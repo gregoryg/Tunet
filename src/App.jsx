@@ -107,6 +107,14 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     setLanguage,
     inactivityTimeout,
     setInactivityTimeout,
+    bgMode,
+    setBgMode,
+    bgColor,
+    setBgColor,
+    bgGradient,
+    setBgGradient,
+    bgImage,
+    setBgImage,
     config,
     setConfig
   } = useConfig();
@@ -127,8 +135,11 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     persistPageSettings,
     savePageSetting,
     gridColumns,
+    setGridColumns,
     gridGap,
     setGridGap,
+    cardBorderRadius,
+    setCardBorderRadius,
     headerScale,
     updateHeaderScale,
     headerTitle,
@@ -215,9 +226,10 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showWeatherModal, setShowWeatherModal] = useState(null);
 
-  // Smart Theme Logic
+  // Smart Theme Logic — only active when bgMode is 'theme'
   useEffect(() => {
     if (currentTheme !== 'contextual') return;
+    if (bgMode !== 'theme') return;
 
     const weatherEntity = Object.values(entities).find(e => e.entity_id.startsWith('weather.'));
     const weatherState = weatherEntity?.state;
@@ -294,7 +306,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     root.style.setProperty('--bg-gradient-to', bgGradientTo);
     root.style.setProperty('--bg-primary', bgPrimary);
     
-  }, [currentTheme, now, entities]);
+  }, [currentTheme, now, entities, bgMode]);
 
   const updateCount = Object.values(entities).filter(e => e.entity_id.startsWith('update.') && e.state === 'on' && !e.attributes.skipped_version).length;
   const resetToHome = () => {
@@ -695,7 +707,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     };
   }, [conn, cardSettings]);
 
-  const activeGridColumns = pageSettings[activePage]?.gridColumns ?? gridColumns;
+  const activeGridColumns = gridColumns;
 
   useEffect(() => {
     const updateGridCols = () => {
@@ -703,8 +715,8 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
       const mobile = width < 480;
       setIsMobile(mobile);
 
-      if (width >= 1280) setGridColCount(activeGridColumns === 4 ? 4 : 3);
-      else if (width >= 1024) setGridColCount(3);
+      if (width >= 1280) setGridColCount(activeGridColumns);
+      else if (width >= 1024) setGridColCount(Math.min(activeGridColumns, 3));
       else setGridColCount(2);
       
       setIsCompactCards(width >= 480 && width < 640);
@@ -1435,7 +1447,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
 
     if (!isActive) {
       return (
-        <div key={mpId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-center items-center transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: 'var(--text-primary)'}}>
+        <div key={mpId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaGroupKey(null); setActiveMediaGroupIds(null); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-center items-center transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: 'var(--text-primary)'}}>
           {getControls(mpId)}
           <div className="p-5 rounded-full mb-4" style={{backgroundColor: 'var(--glass-bg)'}}>
             {isChannel ? <Tv className="w-8 h-8 text-[var(--text-secondary)]" /> : <Speaker className="w-8 h-8 text-[var(--text-secondary)]" />}
@@ -1449,7 +1461,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     }
 
     return (
-      <div key={mpId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-between transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: picture ? 'white' : 'var(--text-primary)'}}>
+      <div key={mpId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaGroupKey(null); setActiveMediaGroupIds(null); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-between transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: picture ? 'white' : 'var(--text-primary)'}}>
         {getControls(mpId)}
         {picture && (
           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
@@ -1513,7 +1525,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
 
     if (!isActive) {
       return (
-        <div key={cardId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaGroupKey(settingsKey); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-center items-center transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: 'var(--text-primary)'}}>
+        <div key={cardId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaGroupKey(settingsKey); setActiveMediaGroupIds(null); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-center items-center transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: 'var(--text-primary)'}}>
           {getControls(cardId)}
           <div className="p-5 rounded-full mb-4" style={{backgroundColor: 'var(--glass-bg)'}}>
             {isChannel ? <Tv className="w-8 h-8 text-[var(--text-secondary)]" /> : <Speaker className="w-8 h-8 text-[var(--text-secondary)]" />}
@@ -1527,7 +1539,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     }
 
     return (
-      <div key={cardId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaGroupKey(settingsKey); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-between transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: picture ? 'white' : 'var(--text-primary)'}}>
+      <div key={cardId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) { setActiveMediaId(mpId); setActiveMediaGroupKey(settingsKey); setActiveMediaGroupIds(null); setActiveMediaModal('media'); } }} className={`touch-feedback p-7 rounded-3xl flex flex-col justify-between transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, color: picture ? 'white' : 'var(--text-primary)'}}>
         {getControls(cardId)}
         {cyclePool.length > 1 && (
           <button onClick={cyclePlayers} className="absolute top-4 right-4 z-30 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors backdrop-blur-md">
@@ -2405,7 +2417,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
               {editMode && (
                 <button 
                   onClick={() => { setAddCardTargetPage('header'); setShowAddCardModal(true); }} 
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-all text-xs font-bold uppercase tracking-widest"
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-all text-[10px] font-bold uppercase tracking-[0.2em]"
                 >
                   <Plus className="w-3 h-3" /> {t('addCard.type.entity')}
                 </button>
@@ -2458,7 +2470,6 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
           />
           <div className="relative flex items-center gap-6 flex-shrink-0 overflow-visible pb-2 justify-end">
             {editMode && <button onClick={() => setShowAddCardModal(true)} className="group flex items-center gap-2 text-xs font-bold uppercase text-blue-400 hover:text-white transition-all whitespace-nowrap"><Plus className="w-4 h-4" /> {t('nav.addCard')}</button>}
-              {editMode && <button onClick={() => { const currentCols = pageSettings[activePage]?.gridColumns ?? gridColumns; const newCols = currentCols === 3 ? 4 : 3; savePageSetting(activePage, 'gridColumns', newCols); }} className="group flex items-center gap-2 text-xs font-bold uppercase text-blue-400 hover:text-white transition-all whitespace-nowrap"><Columns className="w-4 h-4" /> {(pageSettings[activePage]?.gridColumns ?? gridColumns) === 3 ? '4' : '3'} {t('nav.columns')}</button>}
             {editMode && (
               <button onClick={() => {
                 const currentSettings = pageSettings[activePage];
@@ -2594,6 +2605,18 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
           setInactivityTimeout={setInactivityTimeout}
           gridGap={gridGap}
           setGridGap={setGridGap}
+          gridColumns={gridColumns}
+          setGridColumns={setGridColumns}
+          cardBorderRadius={cardBorderRadius}
+          setCardBorderRadius={setCardBorderRadius}
+          bgMode={bgMode}
+          setBgMode={setBgMode}
+          bgColor={bgColor}
+          setBgColor={setBgColor}
+          bgGradient={bgGradient}
+          setBgGradient={setBgGradient}
+          bgImage={bgImage}
+          setBgImage={setBgImage}
           entities={entities}
           getEntityImageUrl={getEntityImageUrl}
           callService={callService}
@@ -3393,7 +3416,12 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
           <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"><div className="text-white">Loading...</div></div>}>
             <MediaModal
           show={!!activeMediaModal}
-          onClose={() => setActiveMediaModal(null)}
+          onClose={() => {
+            setActiveMediaModal(null);
+            setActiveMediaGroupKey(null);
+            setActiveMediaGroupIds(null);
+            setActiveMediaSessionSensorIds(null);
+          }}
           activeMediaModal={activeMediaModal}
           activeMediaGroupKey={activeMediaGroupKey}
           activeMediaGroupIds={activeMediaGroupIds}

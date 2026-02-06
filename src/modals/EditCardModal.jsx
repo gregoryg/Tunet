@@ -184,7 +184,7 @@ export default function EditCardModal({
           background: rgba(255, 255, 255, 0.25);
         }
       `}</style>
-      <div className="border w-full max-w-4xl rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] p-4 sm:p-6 md:p-8 shadow-2xl relative font-sans backdrop-blur-xl popup-anim flex flex-col max-h-[92vh] sm:max-h-[85vh] mt-3 sm:mt-0" style={{
+      <div className="border w-full max-w-lg rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] p-4 sm:p-6 md:p-8 shadow-2xl relative font-sans backdrop-blur-xl popup-anim flex flex-col max-h-[92vh] sm:max-h-[85vh] mt-3 sm:mt-0" style={{
         background: 'linear-gradient(135deg, var(--card-bg) 0%, var(--modal-bg) 100%)', 
         borderColor: 'var(--glass-border)', 
         color: 'var(--text-primary)'
@@ -592,59 +592,103 @@ export default function EditCardModal({
             );
           })()}
 
-          {canEditStatus && (
-            <>
-              <div className="flex items-center justify-between px-6 py-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl">
+          {canEditStatus && !isEditSensor && (
+            <div className="p-4 popup-surface rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
                 <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">{t('form.showStatus')}</span>
-                  <button 
-                    onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showStatus', !(editSettings.showStatus !== false))}
-                    className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showStatus !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showStatus !== false ? 'left-7' : 'left-1'}`} />
-                  </button>
+                <button 
+                  onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showStatus', !(editSettings.showStatus !== false))}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showStatus !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showStatus !== false ? 'left-7' : 'left-1'}`} />
+                </button>
               </div>
 
-              <div className="flex items-center justify-between px-6 py-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl">
+              <div className="flex items-center justify-between">
                 <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">{t('form.showLastChanged')}</span>
-                  <button 
-                    onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showLastChanged', !(editSettings.showLastChanged !== false))}
-                    className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showLastChanged !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showLastChanged !== false ? 'left-7' : 'left-1'}`} />
-                  </button>
+                <button 
+                  onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showLastChanged', !(editSettings.showLastChanged !== false))}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showLastChanged !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showLastChanged !== false ? 'left-7' : 'left-1'}`} />
+                </button>
               </div>
-            </>
-          )}
-
-          {isEditSensor && (
-            <div className="flex items-center justify-between px-6 py-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl">
-              <div className="flex flex-col">
-                <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">Controls</span>
-                <span className="text-[10px] text-gray-500">Enable +/- or Toggle</span>
-              </div>
-              <button 
-                onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showControls', !editSettings.showControls)}
-                className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showControls ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showControls ? 'left-7' : 'left-1'}`} />
-              </button>
             </div>
           )}
 
-          {isEditSensor && (
-            <div className="flex items-center justify-between px-6 py-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl">
-              <div className="flex flex-col">
-                <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">Graph</span>
-                <span className="text-[10px] text-gray-500">Show history graph</span>
+          {isEditSensor && (() => {
+             const entity = entities[entityId];
+             const domain = entityId.split('.')[0];
+             const canControl = ['input_boolean', 'switch', 'light', 'input_number', 'automation', 'script', 'scene'].includes(domain);
+             
+             const state = entity?.state;
+             const isNumeric = typeof state === 'string' ? /^\s*-?\d+(\.\d+)?\s*$/.test(state) : !isNaN(parseFloat(state));
+             const canGraph = isNumeric && domain !== 'input_number';
+
+             return (
+              <div className="p-4 popup-surface rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">{t('form.showName') || 'Show Name'}</span>
+                      <button 
+                        onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showName', !(editSettings.showName !== false))}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showName !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showName !== false ? 'left-7' : 'left-1'}`} />
+                      </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">{t('form.showStatus') || 'Show Status'}</span>
+                      <button 
+                        onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showStatus', !(editSettings.showStatus !== false))}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showStatus !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showStatus !== false ? 'left-7' : 'left-1'}`} />
+                      </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">{t('form.showLastChanged') || 'Show Last Changed'}</span>
+                    <button 
+                      onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showLastChanged', !(editSettings.showLastChanged !== false))}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showLastChanged !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showLastChanged !== false ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+
+                  {canControl && (
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                        <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">Controls</span>
+                        <span className="text-[10px] text-gray-500">Enable +/- or Toggle</span>
+                        </div>
+                        <button 
+                        onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showControls', !editSettings.showControls)}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showControls ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
+                        >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showControls ? 'left-7' : 'left-1'}`} />
+                        </button>
+                    </div>
+                  )}
+
+                  {canGraph && (
+                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <span className="text-xs uppercase font-bold text-gray-500 tracking-widest">Graph</span>
+                        <span className="text-[10px] text-gray-500">Show history graph</span>
+                    </div>
+                    <button 
+                        onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showGraph', !(editSettings.showGraph !== false))}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showGraph !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
+                    >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showGraph !== false ? 'left-7' : 'left-1'}`} />
+                    </button>
+                    </div>
+                  )}
               </div>
-              <button 
-                onClick={() => editSettingsKey && saveCardSetting(editSettingsKey, 'showGraph', !(editSettings.showGraph !== false))}
-                className={`w-12 h-6 rounded-full transition-colors relative ${editSettings.showGraph !== false ? 'bg-blue-500' : 'bg-[var(--glass-bg-hover)]'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${editSettings.showGraph !== false ? 'left-7' : 'left-1'}`} />
-              </button>
-            </div>
-          )}
+             );
+          })()}
 
           {isEditCost && (
             <div className="space-y-6">

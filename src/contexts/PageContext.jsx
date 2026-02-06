@@ -42,7 +42,8 @@ export const PageProvider = ({ children }) => {
   const [hiddenCards, setHiddenCards] = useState([]);
   const [pageSettings, setPageSettings] = useState({});
   const [gridColumns, setGridColumns] = useState(3);
-  const [gridGap, setGridGap] = useState(32);
+  const [gridGap, setGridGap] = useState(20);
+  const [cardBorderRadius, setCardBorderRadius] = useState(16);
   const [headerScale, setHeaderScale] = useState(1);
   const [headerTitle, setHeaderTitle] = useState(() => 
     localStorage.getItem('tunet_header_title') || ''
@@ -130,6 +131,9 @@ export const PageProvider = ({ children }) => {
 
     const savedGap = readNumber('tunet_grid_gap', null);
     if (savedGap !== null) setGridGap(savedGap);
+
+    const savedRadius = readNumber('tunet_card_border_radius', null);
+    if (savedRadius !== null) setCardBorderRadius(savedRadius);
 
     const savedScale = readNumber('tunet_header_scale', null);
     if (savedScale !== null) setHeaderScale(savedScale);
@@ -257,7 +261,14 @@ export const PageProvider = ({ children }) => {
     persistPageSettings,
     savePageSetting,
     gridColumns,
-    setGridColumns,
+    setGridColumns: (val) => {
+      setGridColumns(val);
+      try {
+        localStorage.setItem('tunet_grid_columns', String(val));
+      } catch (error) {
+        console.error('Failed to save grid columns:', error);
+      }
+    },
     headerScale,
     updateHeaderScale,
     headerTitle,
@@ -279,6 +290,16 @@ export const PageProvider = ({ children }) => {
     },
     statusPillsConfig,
     saveStatusPillsConfig,
+    cardBorderRadius,
+    setCardBorderRadius: (val) => {
+      setCardBorderRadius(val);
+      document.documentElement.style.setProperty('--card-border-radius', `${val}px`);
+      try {
+        localStorage.setItem('tunet_card_border_radius', String(val));
+      } catch (error) {
+        console.error('Failed to save card border radius:', error);
+      }
+    },
   };
 
   return (

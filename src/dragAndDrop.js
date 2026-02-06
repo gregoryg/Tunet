@@ -210,6 +210,7 @@ export const createDragAndDropHandlers = ({
       backdropFilter: 'blur(16px)',
       borderStyle: 'solid',
       borderWidth: editMode ? '2px' : '1px',
+      borderRadius: 'var(--card-border-radius, 16px)',
       opacity: isHidden && editMode ? 0.4 : 1,
       filter: isHidden && editMode ? 'grayscale(100%)' : 'none',
       transform: isDragging ? 'scale(1.08)' : 'none',

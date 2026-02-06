@@ -216,7 +216,7 @@ export default function MediaPage({
                   {mpName}
                 </p>
               )}
-              <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-primary)] leading-none truncate">{mpTitle || t('common.unknown')}</h2>
+              <h2 className="text-lg md:text-xl font-bold text-[var(--text-primary)] leading-none truncate">{mpTitle || t('common.unknown')}</h2>
               <p className="text-xl text-[var(--text-secondary)] font-medium truncate">{mpSeries || ''}</p>
             </div>
 
@@ -235,8 +235,8 @@ export default function MediaPage({
                 </button>
                 <div className="flex items-center justify-center gap-4">
                   <button onClick={() => callService('media_player', 'media_previous_track', { entity_id: mpId })} className="p-2 hover:bg-[var(--glass-bg-hover)] rounded-full transition-all active:scale-95"><SkipBack className="w-6 h-6 text-[var(--text-secondary)]" /></button>
-                  <button onClick={() => callService('media_player', 'media_play_pause', { entity_id: mpId })} className="p-3 rounded-full transition-all active:scale-95 shadow-lg hover:shadow-xl hover:scale-105" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
-                    {isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-0.5" />}
+                  <button onClick={() => callService('media_player', 'media_play_pause', { entity_id: mpId })} className="p-3 rounded-full transition-all active:scale-95 shadow-lg hover:shadow-xl hover:scale-105 bg-[var(--text-primary)]">
+                    {isPlaying ? <Pause className="w-7 h-7" color="var(--bg-primary)" fill="var(--bg-primary)" /> : <Play className="w-7 h-7 ml-0.5" color="var(--bg-primary)" fill="var(--bg-primary)" />}
                   </button>
                   <button onClick={() => callService('media_player', 'media_next_track', { entity_id: mpId })} className="p-2 hover:bg-[var(--glass-bg-hover)] rounded-full transition-all active:scale-95"><SkipForward className="w-6 h-6 text-[var(--text-secondary)]" /></button>
                 </div>
@@ -297,7 +297,7 @@ export default function MediaPage({
                   </div>
                   <div className="overflow-hidden">
                     <p className={`text-xs font-bold uppercase tracking-wider truncate ${isSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`}>{p.attributes.friendly_name || p.entity_id}</p>
-                    <p className="text-[10px] text-gray-600 truncate mt-0.5">{pTitle}</p>
+                    <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">{pTitle}</p>
                   </div>
                 </button>
                 {!isSelf && isCurrentSonos && isSonos && (

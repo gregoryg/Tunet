@@ -61,7 +61,9 @@ export default function SensorCard({
     : 'bg-[var(--glass-bg)] text-[var(--text-secondary)]';
   
   // Feature flags from settings
-  const showControls = settings?.showControls;
+  const showControls = settings?.showControls !== false;
+  const showName = settings?.showName !== false;
+  const showStatus = settings?.showStatus !== false;
   const isSmall = settings?.size === 'small';
   const showGraph = !isSmall && isNumeric && domain !== 'input_number' && settings?.showGraph !== false;
 
@@ -201,9 +203,11 @@ export default function SensorCard({
 
   // Determine controls based on domain
   const isToggleDomain = domain === 'input_boolean' || domain === 'switch' || domain === 'automation';
-  const showToggleControls = isToggleDomain;
+  const showToggleControls = isToggleDomain && showControls;
 
   const renderControls = () => {
+    if (!showControls) return null;
+
     if (domain === 'script' || domain === 'scene') {
       const showActive = (domain === 'script' && state === 'on') || Date.now() < activeUntil;
       const label = showActive 
@@ -310,12 +314,12 @@ export default function SensorCard({
             {Icon ? <Icon className="w-6 h-6 stroke-[1.5px]" /> : <Activity className="w-6 h-6" />}
           </div>
           <div className="flex flex-col min-w-0">
-            <p className="text-[var(--text-secondary)] text-xs tracking-widest uppercase font-bold opacity-60 whitespace-normal break-words leading-none mb-1.5">{String(name)}</p>
+            {showName && <p className="text-[var(--text-secondary)] text-xs tracking-widest uppercase font-bold opacity-60 whitespace-normal break-words leading-none mb-1.5">{String(name)}</p>}
              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-bold text-[var(--text-primary)] leading-none">
+                {showStatus && <span className="text-sm font-bold text-[var(--text-primary)] leading-none">
                   {displayState}
-                </span>
-                {unit && <span className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider leading-none">{unit}</span>}
+                </span>}
+                {showStatus && unit && <span className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider leading-none">{unit}</span>}
             </div>
           </div>
         </div>
@@ -353,7 +357,7 @@ export default function SensorCard({
       </div>
 
       {showGraph && history.length > 0 && (
-        <div className="absolute inset-x-0 bottom-2 h-24 z-0 pointer-events-none">
+        <div className="absolute inset-x-0 bottom-0 h-24 z-0 pointer-events-none">
           <SparkLine data={history} height={96} currentIndex={history.length - 1} fade />
         </div>
       )}
@@ -371,7 +375,7 @@ export default function SensorCard({
       </div>
 
       <div className="relative z-10 mt-4">
-        <p className="text-[var(--text-secondary)] text-xs tracking-widest uppercase mb-1 font-bold opacity-60">{String(name)}</p>
+        {showName && <p className="text-[var(--text-secondary)] text-xs tracking-widest uppercase mb-1 font-bold opacity-60">{String(name)}</p>}
         {showToggleControls ? (
           <div className="flex items-center gap-2 mt-4 bg-[var(--glass-bg)] rounded-full p-1 w-fit">
             <button 
@@ -389,7 +393,7 @@ export default function SensorCard({
           </div>
         ) : (
           <>
-            {domain !== 'input_number' && (
+            {domain !== 'input_number' && showStatus && (
               <h3 className="text-2xl font-medium text-[var(--text-primary)] leading-none">
                 {displayState}
               </h3>

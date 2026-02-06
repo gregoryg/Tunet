@@ -207,10 +207,9 @@ export default function GenericAndroidTVCard({
               const targetId = isPlaying ? displayEntityId : mediaPlayerId;
               callService("media_player", "media_play_pause", { entity_id: targetId });
             }}
-            className="p-3 rounded-full transition-all active:scale-95 shadow-lg relative z-20 flex-shrink-0"
-            style={{ backgroundColor: 'white', color: 'black' }}
+            className="p-3 rounded-full transition-all active:scale-95 shadow-lg relative z-20 flex-shrink-0 bg-white"
           >
-            {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-0.5" />}
+            {isPlaying ? <Pause className="w-6 h-6" color="black" fill="black" /> : <Play className="w-6 h-6 ml-0.5" color="black" fill="black" />}
           </button>
         )}
       </div>
