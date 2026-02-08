@@ -47,7 +47,7 @@ export default function Header({
 
   return (
     <header
-      className={`relative pt-4 md:pt-0 flex flex-col md:flex-row justify-between ${isMobile ? 'items-center text-center' : 'items-start'} md:items-end gap-10 leading-none`}
+      className="relative pt-4 md:pt-0 font-sans"
       style={{ marginBottom: `${headerBottom}px` }}
     >
       {editMode && !headerSettings.showTitle && setShowHeaderEditModal && (
@@ -61,36 +61,10 @@ export default function Header({
           </button>
         </div>
       )}
-      
-      {headerSettings.showClock && !isMobile && (
-        <>
-          <div className="absolute top-0 right-0 hidden md:block">
-            <h2 
-              className="font-light tracking-[0.1em] leading-none select-none" 
-              style={{ 
-                fontSize: `calc(3.75rem * ${headerScale} * ${clockScale})`, 
-                color: 'var(--text-muted)' 
-              }}
-            >
-              {timeStr}
-            </h2>
-          </div>
-          
-          <div className="absolute top-0 right-0 md:hidden">
-            <h2 
-              className="font-light tracking-[0.1em] leading-none select-none" 
-              style={{ 
-                fontSize: `calc(3rem * ${headerScale} * ${clockScale})`, 
-                color: 'var(--text-muted)' 
-              }}
-            >
-              {timeStr}
-            </h2>
-          </div>
-        </>
-      )}
 
-      <div className="flex flex-col gap-6 md:gap-3 font-sans w-full">
+      {/* Main flex: heading (left) & clock (right) aligned at same Y */}
+      <div className={`flex justify-between items-start gap-10 leading-none ${isMobile ? 'flex-col items-center text-center' : ''}`}>
+        {/* Left column: Heading and Date (same X) */}
         <div className="flex flex-col gap-1">
           <div className={`flex items-center gap-4 ${isMobile ? 'justify-center w-full' : ''}`}>
             {headerSettings.showTitle && (
@@ -144,6 +118,22 @@ export default function Header({
           )}
         </div>
 
+        {/* Right column: Clock (aligned with heading Y) */}
+        {headerSettings.showClock && !isMobile && (
+          <h2 
+            className="font-light tracking-[0.1em] leading-none select-none hidden md:block" 
+            style={{ 
+              fontSize: `calc(3.75rem * ${headerScale} * ${clockScale})`, 
+              color: 'var(--text-muted)' 
+            }}
+          >
+            {timeStr}
+          </h2>
+        )}
+      </div>
+
+      {/* Children (content below heading & clock) */}
+      <div className="flex flex-col gap-6 md:gap-3 w-full pt-6 md:pt-3">
         {children}
       </div>
     </header>
