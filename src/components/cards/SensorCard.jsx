@@ -17,16 +17,14 @@ export default function SensorCard({
   onOpen,
   t
 }) {
-  if (!entity) return null;
-
   const translate = t || ((key) => key);
-  const state = entity.state;
-  const unit = entity.attributes?.unit_of_measurement || '';
+  const state = entity?.state;
+  const unit = entity?.attributes?.unit_of_measurement || '';
   const isNumeric = typeof state === 'string'
     ? /^\s*-?\d+(\.\d+)?\s*$/.test(state)
     : !isNaN(parseFloat(state));
-  const domain = entity.entity_id.split('.')[0];
-  const deviceClass = entity.attributes?.device_class;
+  const domain = entity?.entity_id?.split('.')[0] || '';
+  const deviceClass = entity?.attributes?.device_class;
   const isOnOffState = state === 'on' || state === 'off';
   const isUnavailable = state === 'unavailable' || state === 'unknown';
   const numericState = isNumeric ? parseFloat(state) : null;
@@ -99,7 +97,7 @@ export default function SensorCard({
   }, []);
 
   useEffect(() => {
-    if (!conn || !entity.entity_id || !showGraph || !isVisible) {
+    if (!conn || !entity?.entity_id || !showGraph || !isVisible) {
       if (!isVisible && showGraph) {
         // Keep empty while waiting for visibility
         return;
@@ -198,7 +196,10 @@ export default function SensorCard({
       if (idleId) window.cancelIdleCallback(idleId);
       if (timerId) clearTimeout(timerId);
     };
-  }, [conn, entity.entity_id, showGraph, state, isVisible]);
+  }, [conn, entity?.entity_id, showGraph, state, isVisible]);
+
+  // Early return AFTER all hooks to respect Rules of Hooks
+  if (!entity) return null;
 
   // Determine controls based on domain
   const isToggleDomain = domain === 'input_boolean' || domain === 'switch' || domain === 'automation';

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { saveTokens, loadTokens, clearOAuthTokens, hasOAuthTokens } from '../services/oauthStorage';
 
 const HomeAssistantContext = createContext(null);
@@ -11,8 +11,40 @@ export const useHomeAssistant = () => {
   return context;
 };
 
-export const HomeAssistantProvider = ({ children, config }) => {
+/**
+ * Throttled state setter — batches rapid HA entity updates into a single
+ * React render per animation frame, preventing full-tree re-renders on
+ * every WebSocket message.
+ */
+function useThrottledEntities() {
   const [entities, setEntities] = useState({});
+  const pendingRef = useRef(null);
+  const rafRef = useRef(null);
+
+  const setEntitiesThrottled = useCallback((updatedEntities) => {
+    pendingRef.current = updatedEntities;
+    if (rafRef.current == null) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        if (pendingRef.current) {
+          setEntities(pendingRef.current);
+        }
+      });
+    }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  return [entities, setEntitiesThrottled];
+}
+
+export const HomeAssistantProvider = ({ children, config }) => {
+  const [entities, setEntities] = useThrottledEntities();
   const [connected, setConnected] = useState(false);
   const [haUnavailable, setHaUnavailable] = useState(false);
   const [haUnavailableVisible, setHaUnavailableVisible] = useState(false);
