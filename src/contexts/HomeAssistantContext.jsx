@@ -63,18 +63,28 @@ export const HomeAssistantProvider = ({ children, config }) => {
     const hasOAuth = hasOAuthTokens();
     const isOAuthCallback = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('auth_callback');
 
+    console.log('[HA] Connection effect fired:', {
+      url: config.url, 
+      hasToken, 
+      isOAuth, 
+      isIngress: config.isIngress,
+      authMethod: config.authMethod,
+    });
+
     if (!config.url) {
+      console.log('[HA] No URL, skipping connection');
       return;
     }
 
     // For token mode, require token
     if (!isOAuth && !hasToken) {
+      console.log('[HA] Token mode but no token, skipping');
       if (connected) setConnected(false);
       return;
     }
     // For oauth mode, require stored tokens OR an active callback in the URL
-    // (Ingress uses OAuth — user already has an active HA session, skip token check)
     if (isOAuth && !hasOAuth && !isOAuthCallback && !config.isIngress) {
+      console.log('[HA] OAuth mode but no stored tokens, skipping');
       if (connected) setConnected(false);
       return;
     }
@@ -196,21 +206,28 @@ export const HomeAssistantProvider = ({ children, config }) => {
     }
 
     async function connect() {
+      console.log('[HA] connect() called, attempting connection to:', config.url);
       try {
         // If we have a token, connect directly using the standard token auth
         // This works for both standalone and Ingress (if the user provides a token)
         if (config.token) {
+          console.log('[HA] Using token auth');
           await connectWithToken(config.url);
         } else if (config.isIngress) {
+            console.log('[HA] Using ingress auth (no token)');
             // Attempt magic Ingress auth (no token)
             await connectWithIngress(config.url);
         } else if (isOAuth) {
+          console.log('[HA] Using OAuth');
           await connectWithOAuth(config.url);
         } else {
+          console.log('[HA] Fallback to token auth');
           // Fallback
           await connectWithToken(config.url);
         }
+        console.log('[HA] Connection successful!');
       } catch (err) {
+        console.error('[HA] Connection failed:', err);
         if (cancelled) return;
 
         // For OAuth, if auth is invalid, clear tokens and flag expiry
