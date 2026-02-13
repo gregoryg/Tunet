@@ -7,6 +7,9 @@ RUN apk add --no-cache git
 ARG BUILD_REPO=https://github.com/oyvhov/Tunet.git
 ARG BUILD_BRANCH=addon-support
 
+# Bust Docker cache on every new commit so fresh code is always pulled
+ADD https://api.github.com/repos/oyvhov/Tunet/git/refs/heads/addon-support /tmp/git-version
+
 WORKDIR /src
 RUN git clone --depth 1 --branch ${BUILD_BRANCH} ${BUILD_REPO} .
 RUN npm ci
