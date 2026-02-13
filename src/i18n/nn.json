@@ -1,4 +1,6 @@
 {
+  "error.cardCrash": "Kortfeil",
+  "error.retry": "Prøv igjen",
   "system.title": "System",
   "system.tabConnection": "Tilkobling",
   "system.tabSettings": "Innstillingar",

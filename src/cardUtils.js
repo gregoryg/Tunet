@@ -3,6 +3,20 @@
  * These are extracted from App.jsx to reduce file size and improve testability.
  */
 
+/** Prefixes for card types that can always be removed from user pages. */
+const REMOVABLE_PREFIXES = [
+  'light_', 'light.', 'vacuum.', 'media_player.', 'media_group_',
+  'weather_temp_', 'calendar_card_', 'climate_card_', 'cost_card_',
+  'androidtv_card_', 'car_card_', 'nordpool_card_', 'todo_card_', 'room_card_',
+];
+
+/** Prefixes for "special" composite cards that don't map 1:1 to an entity. */
+const SPECIAL_CARD_PREFIXES = [
+  'media_group_', 'weather_temp_', 'calendar_card_', 'climate_card_',
+  'cost_card_', 'androidtv_card_', 'car_card_', 'nordpool_card_',
+  'todo_card_', 'room_card_',
+];
+
 /**
  * Determine whether a card can be removed from a given page.
  */
@@ -16,22 +30,8 @@ export function isCardRemovable(cardId, pageId, { getCardSettingsKey, cardSettin
   const settingsKey = getCardSettingsKey(cardId, pageId);
   const typeSetting = cardSettings[settingsKey]?.type || cardSettings[cardId]?.type;
   if (typeSetting === 'entity' || typeSetting === 'toggle' || typeSetting === 'sensor') return true;
-  if (cardId.startsWith('light_')) return true;
-  if (cardId.startsWith('light.')) return true;
-  if (cardId.startsWith('vacuum.')) return true;
   if (cardId === 'media_player') return true;
-  if (cardId.startsWith('media_player.')) return true;
-  if (cardId.startsWith('media_group_')) return true;
-  if (cardId.startsWith('weather_temp_')) return true;
-  if (cardId.startsWith('calendar_card_')) return true;
-  if (cardId.startsWith('climate_card_')) return true;
-  if (cardId.startsWith('cost_card_')) return true;
-  if (cardId.startsWith('androidtv_card_')) return true;
-  if (cardId.startsWith('car_card_')) return true;
-  if (cardId.startsWith('nordpool_card_')) return true;
-  if (cardId.startsWith('todo_card_')) return true;
-  if (cardId.startsWith('room_card_')) return true;
-  return false;
+  return REMOVABLE_PREFIXES.some(p => cardId.startsWith(p));
 }
 
 /**
@@ -55,16 +55,7 @@ export function isCardHiddenByLogic(cardId, { activePage, getCardSettingsKey, ca
   }
 
   const isSpecialCard = cardId === 'car' || 
-    cardId.startsWith('media_group_') || 
-    cardId.startsWith('weather_temp_') || 
-    cardId.startsWith('calendar_card_') || 
-    cardId.startsWith('climate_card_') || 
-    cardId.startsWith('cost_card_') || 
-    cardId.startsWith('androidtv_card_') || 
-    cardId.startsWith('car_card_') ||
-    cardId.startsWith('nordpool_card_') ||
-    cardId.startsWith('todo_card_') ||
-    cardId.startsWith('room_card_');
+    SPECIAL_CARD_PREFIXES.some(p => cardId.startsWith(p));
 
   if (!isSpecialCard && !entities[cardId]) {
      if (cardId.startsWith('light_') || cardId.startsWith('light.')) return false;
