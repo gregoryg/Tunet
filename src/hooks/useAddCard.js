@@ -58,7 +58,11 @@ export function useAddCard({
 
   // ── Reset search when modal closes ─────────────────────────────────────
   useEffect(() => {
-    if (!showAddCardModal) setSearchTerm('');
+    if (!showAddCardModal) {
+      setSearchTerm('');
+      // Reset target page so it doesn't stay stuck on 'header' or 'settings'
+      setAddCardTargetPage(activePage);
+    }
   }, [showAddCardModal]);
 
   // ── Reset selections when modal opens ──────────────────────────────────
