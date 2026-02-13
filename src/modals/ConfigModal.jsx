@@ -1191,11 +1191,18 @@ export default function ConfigModal({
 
                 {onboardingStep === 0 && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                    {/* Auth Method Toggle */}
-                    {renderAuthMethodToggle(true)}
+                    {/* Auth Method Toggle — hidden in Ingress mode (always token) */}
+                    {!config.isIngress && renderAuthMethodToggle(true)}
+
+                    {config.isIngress && (
+                      <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs leading-relaxed">
+                        <strong>Add-on Mode:</strong> URL is auto-detected. Just paste a Long-Lived Access Token from your HA Profile.
+                      </div>
+                    )}
 
                     <div className="space-y-3">
-                      {/* URL — always shown */}
+                      {/* URL — hidden in Ingress (auto-detected), shown otherwise */}
+                      {!config.isIngress && (
                       <div className="space-y-1.5">
                         <label className="text-xs uppercase font-bold text-gray-500 ml-1">{t('system.haUrlPrimary')}</label>
                         <input
@@ -1211,9 +1218,10 @@ export default function ConfigModal({
                         />
                         {onboardingUrlError && <p className="text-xs text-red-400 font-bold ml-1">{onboardingUrlError}</p>}
                       </div>
+                      )}
 
                       {/* OAuth2 mode — show login button */}
-                      {isOAuth && (
+                      {!config.isIngress && isOAuth && (
                         <div className="pt-2">
                           {renderOAuthSection()}
                         </div>
@@ -1237,6 +1245,7 @@ export default function ConfigModal({
                             {onboardingTokenError && <p className="text-xs text-red-400 font-bold ml-1">{onboardingTokenError}</p>}
                           </div>
 
+                          {!config.isIngress && (
                           <div className="space-y-1.5">
                             <label className="text-xs uppercase font-bold text-gray-500 ml-1">{t('system.haUrlFallback')}</label>
                             <input
@@ -1248,6 +1257,7 @@ export default function ConfigModal({
                             />
                             <p className="text-[10px] text-[var(--text-muted)] ml-1 leading-tight">{t('onboarding.fallbackHint')}</p>
                           </div>
+                          )}
                         </>
                       )}
                     </div>
