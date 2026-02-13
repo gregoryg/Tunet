@@ -52,7 +52,7 @@ const BlindSlider = ({ position, onChange, onCommit, accent, isUnavailable }) =>
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className={`relative w-full h-full rounded-[2rem] overflow-hidden ${isUnavailable ? 'opacity-50 cursor-not-allowed' : 'cursor-ns-resize touch-none'} ${CONTROL_STYLE}`}
+      className={`relative w-full h-full rounded-2xl overflow-hidden ${isUnavailable ? 'opacity-50 cursor-not-allowed' : 'cursor-ns-resize touch-none'} ${CONTROL_STYLE}`}
     >
       {/* The Blind (Fills from top) */}
       <div
@@ -75,7 +75,7 @@ const BlindSlider = ({ position, onChange, onCommit, accent, isUnavailable }) =>
       
       {/* Handle (Outside, fixed to bottom of blind) */}
       <div 
-        className="absolute left-4 right-4 h-1.5 rounded-full bg-white/40 shadow-sm pointer-events-none transition-all duration-100 ease-out"
+        className="absolute left-3 right-3 h-1.5 rounded-full bg-white/40 shadow-sm pointer-events-none transition-all duration-100 ease-out"
         style={{ top: `calc(${closedPct}% - ${closedPct * 0.06}px)` }}
       />
     </div>
@@ -131,7 +131,7 @@ const HorizontalBlindSlider = ({ position, onChange, onCommit, accent, isUnavail
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className={`relative w-full h-full rounded-2xl overflow-hidden ${isUnavailable ? 'opacity-50 cursor-not-allowed' : 'cursor-ew-resize touch-none'} ${CONTROL_STYLE}`}
+      className={`relative w-full h-full rounded-xl overflow-hidden ${isUnavailable ? 'opacity-50 cursor-not-allowed' : 'cursor-ew-resize touch-none'} ${CONTROL_STYLE}`}
     >
         {/* Fill from left */}
         <div 
@@ -222,7 +222,7 @@ const ButtonControl = ({ onOpen, onClose, onStop, isUnavailable, accent, horizon
 
 /* -- Small Card Variant ---------------------------------------------- */
 const SmallCoverCard = (props) => {
-    const { cardId, dragProps, controls, cardStyle, editMode, onOpen, name, localPos, position, isMoving, isOpening, getStateLabel, accent, isUnavailable, handleToggleMode, Icon, mode, supportsPosition, handlePositionCommit, setLocalPos, handleOpenCover, handleCloseCover, handleStopCover } = props;
+    const { cardId, dragProps, controls, cardStyle, editMode, onOpen, name, localPos, position, isMoving, isOpening, getStateLabel, accent, isUnavailable, handleToggleMode, Icon, mode, supportsPosition, handlePositionCommit, setLocalPos, handleOpenCover, handleCloseCover, handleStopCover, translate } = props;
 
     return (
         <div
@@ -371,7 +371,7 @@ const CoverCard = ({
       cardId, dragProps, controls, cardStyle, editMode, onOpen, 
       name, localPos, position, isMoving, isOpening, getStateLabel, accent, isUnavailable,
       handleToggleMode, Icon, mode, supportsPosition, handlePositionCommit, setLocalPos,
-      handleOpenCover, handleCloseCover, handleStopCover
+      handleOpenCover, handleCloseCover, handleStopCover, translate
   };
 
   if (isSmall) {
@@ -434,14 +434,14 @@ const CoverCard = ({
            
            {isMoving && (
              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-primary)] animate-pulse mt-1">
-               {isOpening ? 'Opening...' : 'Closing...'}
+               {isOpening ? `${translate('cover.opening')}...` : `${translate('cover.closing')}...`}
              </div>
            )}
         </div>
       </div>
 
       {/* RIGHT COLUMN: Control */}
-      <div className="w-20 pl-2 relative z-0 flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div className="w-14 pl-3 relative z-0 flex flex-col" onClick={(e) => e.stopPropagation()}>
          {mode === 'slider' && supportsPosition ? (
             <BlindSlider 
                position={localPos} 

@@ -1,37 +1,28 @@
-# Build stage
+# Stage 1: Build frontend
 FROM node:20-alpine AS builder
-
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy source code
 COPY . .
-
-# Build the project
 RUN npm run build
 
-# Production stage
+# Stage 2: Production server (Express + static files)
 FROM node:20-alpine
-
 WORKDIR /app
 
-# Install a simple HTTP server to serve the built files
-RUN npm install -g serve
+COPY package*.json ./
+RUN npm install --omit=dev
 
-# Copy built files from builder
+# Copy server code
+COPY server ./server
+# Copy built frontend
 COPY --from=builder /app/dist ./dist
 
-# Expose port
-EXPOSE 5173
+ENV NODE_ENV=production
+ENV PORT=80
+ENV DATA_DIR=/app/data
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5173', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+EXPOSE 80
+VOLUME ["/app/data"]
 
-# Serve the app
-CMD ["serve", "-s", "dist", "-l", "5173"]
+CMD ["node", "server/index.js"]
