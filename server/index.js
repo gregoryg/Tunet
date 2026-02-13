@@ -13,6 +13,15 @@ const app = express();
 // Parse JSON bodies
 app.use(express.json({ limit: '2mb' }));
 
+// Ingress support — strip X-Ingress-Path prefix from request URL
+app.use((req, _res, next) => {
+  const ingressPath = req.headers['x-ingress-path'];
+  if (ingressPath && req.url.startsWith(ingressPath)) {
+    req.url = req.url.slice(ingressPath.length) || '/';
+  }
+  next();
+});
+
 // API routes
 app.use('/api/profiles', profilesRouter);
 

@@ -4,7 +4,7 @@
  * and Express serves directly in production.
  */
 
-const API_BASE = '/api';
+const API_BASE = './api';
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {

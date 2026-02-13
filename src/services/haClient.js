@@ -2,6 +2,22 @@
 // All functions assume a valid Home Assistant connection `conn`
 // via home-assistant-js-websocket createConnection.
 
+/**
+ * Create an auth object for Home Assistant Ingress connections.
+ * Ingress handles authentication via the HA session cookie,
+ * so no explicit token is needed.
+ */
+export function createIngressAuth(url) {
+  const wsUrl = url.replace(/^http/, 'ws').replace(/\/$/, '') + '/api/websocket';
+  return {
+    data: { hassUrl: url, expires: -1 },
+    wsUrl,
+    accessToken: '',
+    expired: false,
+    refreshAccessToken: () => Promise.resolve(''),
+  };
+}
+
 export function callService(conn, domain, service, service_data) {
   if (!conn || typeof conn.sendMessagePromise !== 'function') {
     return Promise.reject(new Error('Invalid or disconnected HA connection'));
@@ -46,7 +62,7 @@ export async function getHistory(conn, { start, end, entityId, minimal_response 
 }
 
 export async function getHistoryRest(baseUrl, token, { start, end: _end, entityId, minimal_response = false, no_attributes = false, significant_changes_only = false }) {
-  if (!baseUrl || !token) throw new Error('Missing HA url or token');
+  if (!baseUrl) throw new Error('Missing HA url');
   const root = String(baseUrl).replace(/\/$/, '');
   const startIso = start.toISOString();
   const params = new URLSearchParams({
@@ -56,12 +72,9 @@ export async function getHistoryRest(baseUrl, token, { start, end: _end, entityI
     significant_changes_only: significant_changes_only ? '1' : '0'
   });
   const url = `${root}/api/history/period/${startIso}?${params.toString()}`;
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  });
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(url, { headers });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`History REST failed: ${res.status} ${text}`);

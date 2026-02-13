@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { createConnection, createLongLivedTokenAuth, subscribeEntities, getAuth } from 'home-assistant-js-websocket';
 import { saveTokens, loadTokens, clearOAuthTokens, hasOAuthTokens } from '../services/oauthStorage';
+import { createIngressAuth } from '../services/haClient';
 
 const HomeAssistantContext = createContext(null);
 
@@ -66,8 +67,8 @@ export const HomeAssistantProvider = ({ children, config }) => {
       return;
     }
 
-    // For token mode, require token
-    if (!isOAuth && !hasToken) {
+    // For token mode, require token (unless Ingress — session cookie handles auth)
+    if (!config.isIngress && !isOAuth && !hasToken) {
       if (connected) setConnected(false);
       return;
     }
@@ -107,7 +108,9 @@ export const HomeAssistantProvider = ({ children, config }) => {
     };
 
     async function connectWithToken(url) {
-      const auth = createLongLivedTokenAuth(url, config.token);
+      const auth = config.isIngress
+        ? createIngressAuth(url)
+        : createLongLivedTokenAuth(url, config.token);
       const connInstance = await createConnection({ auth });
       if (cancelled) { 
         connInstance.close(); 
@@ -158,7 +161,9 @@ export const HomeAssistantProvider = ({ children, config }) => {
 
     async function connect() {
       try {
-        if (isOAuth) {
+        if (config.isIngress) {
+          await connectWithToken(config.url);
+        } else if (isOAuth) {
           await connectWithOAuth(config.url);
         } else {
           await connectWithToken(config.url);
