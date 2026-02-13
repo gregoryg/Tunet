@@ -8,9 +8,9 @@
  */
 import { lazy, useMemo } from 'react';
 import { ModalSuspense, getServerInfo } from '../components';
-import { themes } from '../themes';
+import { themes } from '../config/themes';
 import { formatDuration } from '../utils';
-import { buildOnboardingSteps, validateUrl } from '../onboarding';
+import { buildOnboardingSteps, validateUrl } from '../config/onboarding';
 import { prepareNordpoolData } from '../services';
 
 // Lazy load all modals
@@ -23,6 +23,7 @@ const EditCardModal = lazy(() => import('../modals/EditCardModal'));
 const EditPageModal = lazy(() => import('../modals/EditPageModal'));
 const GenericAndroidTVModal = lazy(() => import('../modals/GenericAndroidTVModal'));
 const GenericClimateModal = lazy(() => import('../modals/GenericClimateModal'));
+const CoverModal = lazy(() => import('../modals/CoverModal'));
 const WeatherModal = lazy(() => import('../modals/WeatherModal'));
 const LeafModal = lazy(() => import('../modals/LeafModal'));
 const LightModal = lazy(() => import('../modals/LightModal'));
@@ -35,9 +36,9 @@ const TodoModal = lazy(() => import('../modals/TodoModal'));
 const RoomModal = lazy(() => import('../modals/RoomModal'));
 const VacuumModal = lazy(() => import('../modals/VacuumModal'));
 
-const ThemeSidebar = lazy(() => import('../components/ThemeSidebar'));
-const LayoutSidebar = lazy(() => import('../components/LayoutSidebar'));
-const HeaderSidebar = lazy(() => import('../components/HeaderSidebar'));
+const ThemeSidebar = lazy(() => import('../components/sidebars/ThemeSidebar'));
+const LayoutSidebar = lazy(() => import('../components/sidebars/LayoutSidebar'));
+const HeaderSidebar = lazy(() => import('../components/sidebars/HeaderSidebar'));
 
 export default function ModalOrchestrator({
   entities, conn, activeUrl, connected, authRef,
@@ -61,6 +62,7 @@ export default function ModalOrchestrator({
     showCalendarModal, setShowCalendarModal,
     showTodoModal, setShowTodoModal,
     showRoomModal, setShowRoomModal,
+    showCoverModal, setShowCoverModal,
     showWeatherModal, setShowWeatherModal,
     activeMediaModal, setActiveMediaModal,
     activeMediaGroupKey, setActiveMediaGroupKey,
@@ -170,12 +172,13 @@ export default function ModalOrchestrator({
     const isEditAutomation = !!editId && editId.startsWith('automation.');
     const isEditCar = !!editId && (editId === 'car' || editId.startsWith('car_card_'));
     const isEditRoom = !!editId && editId.startsWith('room_card_');
+    const isEditCover = !!editId && editId.startsWith('cover_card_');
     const editSettings = isEditCar ? resolveCarSettings(editId, rawEditSettings) : rawEditSettings;
     const isEditGenericType = (!!editSettings?.type && (editSettings.type === 'entity' || editSettings.type === 'toggle' || editSettings.type === 'sensor')) || isEditVacuum || isEditAutomation || isEditCar || isEditAndroidTV || isEditRoom;
     const isEditSensor = !!editSettings?.type && editSettings.type === 'sensor';
     const isEditWeatherTemp = !!editId && editId.startsWith('weather_temp_');
     const canEditName = !!editId && !isEditWeatherTemp && editId !== 'media_player' && editId !== 'sonos';
-    const canEditIcon = !!editId && (isEditLight || isEditCalendar || isEditTodo || isEditRoom || editId.startsWith('automation.') || editId.startsWith('vacuum.') || editId.startsWith('climate_card_') || editId.startsWith('cost_card_') || !!editEntity || editId === 'car' || editId.startsWith('car_card_'));
+    const canEditIcon = !!editId && (isEditLight || isEditCalendar || isEditTodo || isEditRoom || isEditCover || editId.startsWith('automation.') || editId.startsWith('vacuum.') || editId.startsWith('climate_card_') || editId.startsWith('cost_card_') || !!editEntity || editId === 'car' || editId.startsWith('car_card_'));
     const canEditStatus = !!editEntity && !!editSettingsKey && editSettingsKey.startsWith('settings::');
     return {
       canEditName, canEditIcon, canEditStatus,
@@ -515,6 +518,27 @@ export default function ModalOrchestrator({
               entities={entities}
               conn={conn}
               callService={(domain, service, data) => callService(domain, service, data)}
+              t={t}
+            />
+          </ModalSuspense>
+        );
+      })()}
+
+      {showCoverModal && (() => {
+        const coverSettingsKey = getCardSettingsKey(showCoverModal);
+        const coverSettings = cardSettings[coverSettingsKey] || cardSettings[showCoverModal] || {};
+        const coverEntityId = coverSettings.coverId;
+        const coverEntity = coverEntityId ? entities[coverEntityId] : null;
+        if (!coverEntityId || !coverEntity) return null;
+        return (
+          <ModalSuspense>
+            <CoverModal
+              show={true}
+              onClose={() => setShowCoverModal(null)}
+              entityId={coverEntityId}
+              entity={coverEntity}
+              callService={callService}
+              customIcons={customIcons}
               t={t}
             />
           </ModalSuspense>

@@ -11,6 +11,7 @@
 import {
   CalendarCard,
   CarCard,
+  CoverCard,
   TodoCard,
   GenericAndroidTVCard,
   GenericClimateCard,
@@ -27,7 +28,7 @@ import {
 } from '../components';
 
 import { Activity, Hash, ToggleRight, Power, Workflow } from '../icons';
-import { getIconComponent } from '../iconMap';
+import { getIconComponent } from '../icons';
 import { callService as haCallService } from '../services';
 
 // ─── Individual Card Renderers ───────────────────────────────────────────────
@@ -393,6 +394,39 @@ export function renderNordpoolCard(cardId, dragProps, getControls, cardStyle, se
   );
 }
 
+export function renderCoverCard(cardId, dragProps, getControls, cardStyle, settingsKey, ctx) {
+  const { entities, editMode, cardSettings, customNames, customIcons, callService, setShowCoverModal, t } = ctx;
+  const settings = cardSettings[settingsKey] || cardSettings[cardId] || {};
+  const entityId = settings.coverId;
+  const entity = entityId ? entities[entityId] : null;
+
+  if (!entity || !entityId) {
+    if (editMode) {
+      return <MissingEntityCard cardId={cardId} dragProps={dragProps} controls={getControls(cardId)} cardStyle={cardStyle} t={t} />;
+    }
+    return null;
+  }
+
+  return (
+    <CoverCard
+      key={cardId}
+      cardId={cardId}
+      entityId={entityId}
+      entity={entity}
+      dragProps={dragProps}
+      controls={getControls(cardId)}
+      cardStyle={cardStyle}
+      editMode={editMode}
+      customNames={customNames}
+      customIcons={customIcons}
+      onOpen={() => setShowCoverModal(cardId)}
+      callService={callService}
+      settings={settings}
+      t={t}
+    />
+  );
+}
+
 export function renderRoomCard(cardId, dragProps, getControls, cardStyle, settingsKey, ctx) {
   const { entities, editMode, conn, cardSettings, customNames, customIcons, callService, setShowRoomModal, setShowEditCardModal, setEditCardSettingsKey, t } = ctx;
   const roomSettings = cardSettings[settingsKey] || cardSettings[cardId] || {};
@@ -487,6 +521,10 @@ export function dispatchCardRender(cardId, dragProps, getControls, cardStyle, se
 
   if (cardId.startsWith('nordpool_card_')) {
     return renderNordpoolCard(cardId, dragProps, getControls, cardStyle, settingsKey, ctx);
+  }
+
+  if (cardId.startsWith('cover_card_')) {
+    return renderCoverCard(cardId, dragProps, getControls, cardStyle, settingsKey, ctx);
   }
 
   if (cardId.startsWith('room_card_')) {

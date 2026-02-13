@@ -1,5 +1,5 @@
 import { Edit2 } from '../icons';
-import StatusPill from '../components/StatusPill';
+import StatusPill from '../components/cards/StatusPill';
 
 /**
  * StatusBar component showing various status indicators

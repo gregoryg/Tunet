@@ -17,7 +17,7 @@ import {
   Link,
   Plus
 } from '../icons';
-import M3Slider from '../components/M3Slider';
+import M3Slider from '../components/ui/M3Slider';
 
 const readJSON = (key, fallback) => {
   try {

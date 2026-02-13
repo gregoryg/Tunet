@@ -3,7 +3,7 @@ import {
   X, Plus, Trash2, Eye, EyeOff, Check,
   ChevronDown, ChevronUp, Activity, Music, Clapperboard, Speaker
 } from '../icons';
-import { getAllIconKeys, getIconComponent } from '../iconMap';
+import { getAllIconKeys, getIconComponent } from '../icons';
 
 /**
  * Modal for configuring status pills in the header

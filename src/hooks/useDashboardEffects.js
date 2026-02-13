@@ -3,7 +3,7 @@ import {
   ENTITY_UPDATE_INTERVAL,
   MEDIA_TICK_INTERVAL,
   INITIAL_FETCH_DELAY,
-} from '../constants';
+} from '../config/constants';
 
 /**
  * Miscellaneous App-level side-effects that don't belong in a specific domain:

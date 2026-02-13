@@ -1,6 +1,7 @@
 export { default as AddPageModal } from './AddPageModal';
 export { default as CalendarModal } from './CalendarModal';
 export { default as ConfigModal } from './ConfigModal';
+export { default as CoverModal } from './CoverModal';
 export { default as EditCardModal } from './EditCardModal';
 export { default as EditHeaderModal } from './EditHeaderModal';
 export { default as EditPageModal } from './EditPageModal';

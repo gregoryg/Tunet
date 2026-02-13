@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Coins, X, TrendingUp, BarChart3 } from '../icons';
-import SensorHistoryGraph from '../components/SensorHistoryGraph';
+import SensorHistoryGraph from '../components/charts/SensorHistoryGraph';
 import { getHistory, getStatistics } from '../services/haClient';
-import { getIconComponent } from '../iconMap';
+import { getIconComponent } from '../icons';
 
 const parseNumeric = (value) => {
   const num = parseFloat(value);

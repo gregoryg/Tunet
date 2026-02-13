@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Plus } from 'lucide-react';
-import IconPicker from '../components/IconPicker';
+import IconPicker from '../components/ui/IconPicker';
 
 export default function AddPageModal({ isOpen, onClose, t, newPageLabel, setNewPageLabel, newPageIcon, setNewPageIcon, onCreate, onCreateMedia }) {
   if (!isOpen) return null;

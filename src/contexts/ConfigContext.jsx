@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { themes } from '../themes';
+import { themes } from '../config/themes';
 
 export const GRADIENT_PRESETS = {
   midnight: { label: 'Midnight', from: '#0f172a', to: '#020617' },
@@ -220,28 +220,10 @@ export const ConfigProvider = ({ children }) => {
 
   // Apply card border opacity to DOM
   useEffect(() => {
-    // 0 = invisible, 100 = full opacity
-    // But we map it to 0.0 to 0.5 range roughly because full white borders are too harsh usually, 
-    // unless the theme specifies otherwise. Wait, let's respect the theme color but override alpha.
-    
-    // Actually, simply setting global alpha multiplier on border color is hard without parsing it.
-    // The previous logic for transparency worked because we assumed card-bg was a color we could standardise.
-    // Borders in themes are often `rgba(255,255,255, 0.1)`.
-    // Let's take a simpler approach: Re-declare the border variable with modified alpha if possible, 
-    // OR just use an opacity multiplier if the color format allows.
-    
-    // Let's assume most borders are white-ish with low opacity.
-    // We will just override the alpha channel of white for now, OR parse the theme color again.
-    
     const themeKey = themes[currentTheme] ? currentTheme : 'dark';
     const baseBorder = themes[themeKey].colors['--card-border'];
-    
-    if (!baseBorder || baseBorder === 'transparent') {
-        // If theme has no border, our slider shouldn't force one?
-        // Or maybe user wants to ADD a border?
-        // For now, let's only modify alpha if we can parse it, similar to bg.
-        return;
-    }
+
+    if (!baseBorder || baseBorder === 'transparent') return;
 
     let r, g, b;
     if (baseBorder.startsWith('#')) {
@@ -263,22 +245,10 @@ export const ConfigProvider = ({ children }) => {
     }
 
     if (r !== undefined) {
-      // Helper: Map 0-100 slider to 0.0 - 1.0 alpha
-      // However, usually borders are subtle (e.g. 0.1). 
-      // If user sets 100%, do they want 1.0 alpha or the "Theme Default"?
-      // Let's say 100% on slider = 0.2 alpha (strong border), 50% = 0.1 alpha (default-ish), 0% = 0.0
-      
-      // actually user asked "dempe den kraftig" (dim it heavily).
-      // So 0 should be invisible.
-      // Let's map 0-50 slider to 0.0 - 0.5 float range directy?
-      // No, 50% slider (= 0.5 opacity) is VERY strong for a border. Usually borders are < 0.2.
-      // Let's map the 0-50 slider value directly to percentage alpha.
-      // So 5% slider = 0.05 alpha. 50% slider = 0.5 alpha.
-      
+      // Map 0-100 slider directly to 0.0-1.0 alpha (0 = invisible, 100 = opaque)
       const alpha = cardBorderOpacity / 100;
       document.documentElement.style.setProperty('--card-border', `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(3)})`);
     }
-
   }, [cardBorderOpacity, currentTheme]);
 
   // Persist background settings

@@ -9,7 +9,7 @@ import {
 } from './icons';
 
 
-import SettingsDropdown from './components/SettingsDropdown';
+import SettingsDropdown from './components/ui/SettingsDropdown';
 
 import { Header, StatusBar } from './layouts';
 
@@ -35,16 +35,16 @@ import {
 } from './hooks';
 
 import { formatDuration } from './utils';
-import './dashboard.css';
+import './styles/dashboard.css';
 import { hasOAuthTokens } from './services/oauthStorage';
-import { isCardRemovable as _isCardRemovable, isCardHiddenByLogic as _isCardHiddenByLogic, isMediaPage as _isMediaPage } from './cardUtils';
-import { getCardGridSpan as _getCardGridSpan, buildGridLayout as _buildGridLayout } from './gridLayout';
-import { createDragAndDropHandlers } from './dragAndDrop';
+import { isCardRemovable as _isCardRemovable, isCardHiddenByLogic as _isCardHiddenByLogic, isMediaPage as _isMediaPage } from './utils/cardUtils';
+import { getCardGridSpan as _getCardGridSpan, buildGridLayout as _buildGridLayout } from './utils/gridLayout';
+import { createDragAndDropHandlers } from './utils/dragAndDrop';
 import { dispatchCardRender } from './rendering/cardRenderers';
 import ModalOrchestrator from './rendering/ModalOrchestrator';
-import CardErrorBoundary from './components/CardErrorBoundary';
-import EditOverlay from './components/EditOverlay';
-import AuroraBackground from './components/AuroraBackground';
+import CardErrorBoundary from './components/ui/CardErrorBoundary';
+import EditOverlay from './components/ui/EditOverlay';
+import AuroraBackground from './components/effects/AuroraBackground';
 
 function AppContent({ showOnboarding, setShowOnboarding }) {
   const {

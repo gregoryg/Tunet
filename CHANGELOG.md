@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.0-beta.7] — 2026-02-13
+
+### Added
+- Blind/Cover card with visual slider (vertical + horizontal)
+- On/Off toggle for "Return to Home" inactivity setting
+
+### Changed
+- Reorganized `src/components` into `cards/`, `charts/`, `effects/`, `pages/`, `sidebars/`, `ui/`
+- Reorganized config, icons, styles, utils into dedicated folders with barrel exports
+
+### Fixed
+- Cover card horizontal drag direction
+- Slider handle visibility at 0% and 100%
+
 ## [1.0.0-beta.6] — 2026-02-12
 
 ### Changed

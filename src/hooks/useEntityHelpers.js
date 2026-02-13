@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { ENTITY_UPDATE_THRESHOLD, MEDIA_TIMEOUT } from '../constants';
+import { ENTITY_UPDATE_THRESHOLD, MEDIA_TIMEOUT } from '../config/constants';
 import { callService as haCallService } from '../services';
 import { logger } from '../utils/logger';
 

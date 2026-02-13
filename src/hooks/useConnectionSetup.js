@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { validateUrl } from '../onboarding';
+import { validateUrl } from '../config/onboarding';
 import { saveTokens, loadTokens, clearOAuthTokens, hasOAuthTokens } from '../services/oauthStorage';
 
 /**

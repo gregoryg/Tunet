@@ -1,6 +1,6 @@
 import { AirVent, ArrowUpDown, Fan, Flame, Minus, Plus, Snowflake, X } from '../icons';
-import M3Slider from '../components/M3Slider';
-import ModernDropdown from '../components/ModernDropdown';
+import M3Slider from '../components/ui/M3Slider';
+import ModernDropdown from '../components/ui/ModernDropdown';
 
 const getDisplayName = (entity, fallback) => entity?.attributes?.friendly_name || fallback;
 

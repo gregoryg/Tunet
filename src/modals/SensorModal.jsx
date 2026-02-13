@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { X, Activity } from 'lucide-react';
 import { logger } from '../utils/logger';
 import { getHistory, getHistoryRest, getStatistics } from '../services/haClient';
-import SensorHistoryGraph from '../components/SensorHistoryGraph';
-import BinaryTimeline from '../components/BinaryTimeline';
+import SensorHistoryGraph from '../components/charts/SensorHistoryGraph';
+import BinaryTimeline from '../components/charts/BinaryTimeline';
 import { formatRelativeTime } from '../utils';
-import { getIconComponent } from '../iconMap';
+import { getIconComponent } from '../icons';
 
 export default function SensorModal({ isOpen, onClose, entityId, entity, customName, conn, haUrl, haToken, t = (key) => key }) {
   const [history, setHistory] = useState([]);

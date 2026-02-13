@@ -1,5 +1,5 @@
 import { X, Car, Clock, RefreshCw, Zap, MapPin, Thermometer } from '../icons';
-import M3Slider from '../components/M3Slider';
+import M3Slider from '../components/ui/M3Slider';
 import { formatRelativeTime } from '../utils';
 
 /**

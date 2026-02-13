@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MOBILE_BREAKPOINT } from '../constants';
+import { MOBILE_BREAKPOINT } from '../config/constants';
 
 /**
  * Responsive grid column count, mobile detection & compact-card flag.

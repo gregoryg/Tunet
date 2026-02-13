@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { 
   X, Cloud, CloudRain, Sun, Moon, CloudSun, Wind, Snowflake, Zap, AlertTriangle 
 } from '../icons';
-import SensorHistoryGraph from '../components/SensorHistoryGraph';
+import SensorHistoryGraph from '../components/charts/SensorHistoryGraph';
 import { getForecast } from '../services/haClient';
-import { getIconComponent } from '../iconMap';
+import { getIconComponent } from '../icons';
 
 const getWeatherInfo = (condition, t) => {
   const map = {

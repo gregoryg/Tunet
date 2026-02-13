@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { themes } from '../themes';
+import { themes } from '../config/themes';
 
 describe('themes', () => {
   it('exports a non-empty themes object', () => {

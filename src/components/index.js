@@ -1,24 +1,32 @@
-export { default as CalendarCard } from './CalendarCard';
-export { default as CarCard } from './CarCard';
-export { default as GenericAndroidTVCard } from './GenericAndroidTVCard';
-export { default as GenericClimateCard } from './GenericClimateCard';
-export { default as GenericEnergyCostCard } from './GenericEnergyCostCard';
-export { default as GenericNordpoolCard } from './GenericNordpoolCard';
-export { default as LightCard } from './LightCard';
-export { default as M3Slider } from './M3Slider';
-export { default as MissingEntityCard } from './MissingEntityCard';
-export { default as ModalSuspense } from './ModalSuspense';
-export { MediaPlayerCard, MediaGroupCard } from './MediaCards';
-export { default as ModernDropdown } from './ModernDropdown';
-export { default as PageNavigation } from './PageNavigation';
-export { default as PersonStatus } from './PersonStatus';
-export { default as RoomCard } from './RoomCard';
-export { default as SensorCard } from './SensorCard';
-export { default as MediaPage } from './MediaPage';
-export { default as SparkLine } from './SparkLine';
-export { default as StatusPill } from './StatusPill';
-export { default as TodoCard } from './TodoCard';
-export { default as VacuumCard } from './VacuumCard';
-export { default as WeatherGraph } from './WeatherGraph';
-export { default as WeatherTempCard } from './WeatherTempCard';
-export { EmbyLogo, JellyfinLogo, NRKLogo, getServerInfo } from './CustomIcons';
+// ── Cards ────────────────────────────────────────────────────────────────
+export { default as CalendarCard } from './cards/CalendarCard';
+export { default as CarCard } from './cards/CarCard';
+export { default as CoverCard } from './cards/CoverCard';
+export { default as GenericAndroidTVCard } from './cards/GenericAndroidTVCard';
+export { default as GenericClimateCard } from './cards/GenericClimateCard';
+export { default as GenericEnergyCostCard } from './cards/GenericEnergyCostCard';
+export { default as GenericNordpoolCard } from './cards/GenericNordpoolCard';
+export { default as LightCard } from './cards/LightCard';
+export { default as MissingEntityCard } from './cards/MissingEntityCard';
+export { MediaPlayerCard, MediaGroupCard } from './cards/MediaCards';
+export { default as PersonStatus } from './cards/PersonStatus';
+export { default as RoomCard } from './cards/RoomCard';
+export { default as SensorCard } from './cards/SensorCard';
+export { default as StatusPill } from './cards/StatusPill';
+export { default as TodoCard } from './cards/TodoCard';
+export { default as VacuumCard } from './cards/VacuumCard';
+export { default as WeatherTempCard } from './cards/WeatherTempCard';
+
+// ── Charts ───────────────────────────────────────────────────────────────
+export { default as SparkLine } from './charts/SparkLine';
+export { default as WeatherGraph } from './charts/WeatherGraph';
+
+// ── UI ───────────────────────────────────────────────────────────────────
+export { default as M3Slider } from './ui/M3Slider';
+export { default as ModalSuspense } from './ui/ModalSuspense';
+export { default as ModernDropdown } from './ui/ModernDropdown';
+export { EmbyLogo, JellyfinLogo, NRKLogo, getServerInfo } from './ui/CustomIcons';
+
+// ── Pages ────────────────────────────────────────────────────────────────
+export { default as PageNavigation } from './pages/PageNavigation';
+export { default as MediaPage } from './pages/MediaPage';

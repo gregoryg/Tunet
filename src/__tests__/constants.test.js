@@ -6,7 +6,7 @@ import {
   MEDIA_TICK_INTERVAL,
   INITIAL_FETCH_DELAY,
   MOBILE_BREAKPOINT
-} from '../constants';
+} from '../config/constants';
 
 describe('constants', () => {
   it('exports numeric constants', () => {

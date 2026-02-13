@@ -4,7 +4,7 @@ import { useDashboardEffects } from '../hooks/useDashboardEffects';
 import {
   ENTITY_UPDATE_INTERVAL,
   MEDIA_TICK_INTERVAL,
-} from '../constants';
+} from '../config/constants';
 
 // ── Fake timers ──────────────────────────────────────────────────────────
 beforeEach(() => {

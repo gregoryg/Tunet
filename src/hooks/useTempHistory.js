@@ -4,7 +4,7 @@ import {
   FETCH_STAGGER_BASE,
   FETCH_STAGGER_RANDOM,
   HISTORY_REFRESH_INTERVAL
-} from '../constants';
+} from '../config/constants';
 
 /**
  * Hook that fetches and refreshes temperature history data for weather cards.

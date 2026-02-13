@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Check, Plus, RefreshCw } from 'lucide-react';
-import IconPicker from '../components/IconPicker';
+import IconPicker from '../components/ui/IconPicker';
 import { getEntitiesForArea } from '../services/haClient';
 
 function SearchableSelect({ label, value, options, onChange, placeholder, entities, t }) {
@@ -88,8 +88,6 @@ export default function EditCardModal({
   canEditName, 
   canEditIcon, 
   canEditStatus, 
-  _isEditLight, 
-  _isEditGenericType,
   isEditSensor,
   isEditCalendar,
   isEditTodo,
@@ -106,8 +104,6 @@ export default function EditCardModal({
   customIcons,
   saveCustomIcon,
   saveCardSetting,
-  hiddenCards: _hiddenCards,
-  _toggleCardVisibility
 }) {
   const [mediaSearch, setMediaSearch] = React.useState('');
 

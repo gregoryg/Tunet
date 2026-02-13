@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import ModernDropdown from '../components/ModernDropdown';
-import M3Slider from '../components/M3Slider';
+import ModernDropdown from '../components/ui/ModernDropdown';
+import M3Slider from '../components/ui/M3Slider';
 import { GRADIENT_PRESETS } from '../contexts/ConfigContext';
 import { hasOAuthTokens } from '../services/oauthStorage';
 import {
@@ -22,31 +22,15 @@ import {
   LayoutGrid,
   Columns,
   Sun,
-  Moon
+  Moon,
+  Link,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  LogIn,
+  LogOut,
+  Key,
 } from '../icons';
-
-// Inline lightweight icons not in icons.js
-const LinkIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-);
-const ChevronDownIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="6 9 12 15 18 9"/></svg>
-);
-const ChevronUpIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="18 15 12 9 6 15"/></svg>
-);
-const EyeIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-);
-const LogInIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-);
-const LogOutIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-);
-const KeyIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-);
 
 export default function ConfigModal({
   open,
@@ -173,7 +157,7 @@ export default function ConfigModal({
           onClick={() => { setConfig({ ...config, authMethod: 'oauth' }); setConnectionTestResult(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all relative ${isOAuth ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border border-[var(--glass-border)] hover:bg-[var(--glass-bg-hover)]'}`}
         >
-          <LogInIcon className="w-3.5 h-3.5" />
+          <LogIn className="w-3.5 h-3.5" />
           OAuth2
           {showRecommended && (
             <span className="absolute -top-2 -right-1 text-[8px] font-bold uppercase tracking-wider bg-green-500 text-white px-1.5 py-0.5 rounded-full shadow-sm">{t('onboarding.recommended')}</span>
@@ -184,7 +168,7 @@ export default function ConfigModal({
           onClick={() => { setConfig({ ...config, authMethod: 'token' }); setConnectionTestResult(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${!isOAuth ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border border-[var(--glass-border)] hover:bg-[var(--glass-bg-hover)]'}`}
         >
-          <KeyIcon className="w-3.5 h-3.5" />
+          <Key className="w-3.5 h-3.5" />
           Token
         </button>
       </div>
@@ -212,7 +196,7 @@ export default function ConfigModal({
               onClick={handleOAuthLogout}
               className="w-full py-2.5 rounded-xl font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all"
             >
-              <LogOutIcon className="w-4 h-4" />
+              <LogOut className="w-4 h-4" />
               {t('system.oauth.logoutButton')}
             </button>
           </div>
@@ -223,7 +207,7 @@ export default function ConfigModal({
             disabled={!config.url || !validateUrl(config.url)}
             className={`w-full py-3 rounded-xl font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 shadow-lg transition-all ${!config.url || !validateUrl(config.url) ? 'bg-[var(--glass-bg)] text-[var(--text-secondary)] opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/20'}`}
           >
-            <LogInIcon className="w-5 h-5" />
+            <LogIn className="w-5 h-5" />
             {t('system.oauth.loginButton')}
           </button>
         )}
@@ -472,7 +456,7 @@ export default function ConfigModal({
                     className="w-full px-4 py-3.5 pl-10 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-primary)] text-xs outline-none focus:border-[var(--accent-color)] transition-colors placeholder:text-[var(--text-muted)]"
                     placeholder={t('settings.bgUrl')}
                   />
-                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                  <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                 </div>
               </div>
             </div>
@@ -486,37 +470,39 @@ export default function ConfigModal({
                   <Home className="w-4 h-4 text-[var(--accent-color)]" />
                   {t('settings.inactivity')}
                 </label>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[var(--text-secondary)]">
-                    {inactivityTimeout === 0 ? t('common.off') : `${inactivityTimeout}s`}
-                  </span>
-                  {inactivityTimeout !== 0 && (
-                    <button
-                      onClick={() => {
-                        setInactivityTimeout(0);
-                        try { localStorage.setItem('tunet_inactivity_timeout', '0'); } catch {}
-                      }}
-                      className="p-1 rounded-full text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)] transition-all"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                <div className="flex items-center gap-3">
+                   <button 
+                    onClick={() => {
+                      const newVal = inactivityTimeout > 0 ? 0 : 60;
+                      setInactivityTimeout(newVal);
+                      try { localStorage.setItem('tunet_inactivity_timeout', String(newVal)); } catch {}
+                    }}
+                    className={`w-10 h-6 rounded-full p-1 transition-colors relative ${inactivityTimeout > 0 ? 'bg-[var(--accent-color)]' : 'bg-gray-500/30'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${inactivityTimeout > 0 ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </button>
                 </div>
               </div>
-              <div className="px-1">
-                <M3Slider
-                  min={0}
-                  max={300}
-                  step={10}
-                  value={inactivityTimeout}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    setInactivityTimeout(val);
-                    try { localStorage.setItem('tunet_inactivity_timeout', String(val)); } catch {}
-                  }}
+              
+              {inactivityTimeout > 0 && (
+                <div className="px-1 pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                   <div className="flex justify-end mb-1">
+                     <span className="text-xs font-bold text-[var(--text-secondary)]">{inactivityTimeout}s</span>
+                   </div>
+                  <M3Slider
+                    min={10}
+                    max={300}
+                    step={10}
+                    value={inactivityTimeout}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setInactivityTimeout(val);
+                      try { localStorage.setItem('tunet_inactivity_timeout', String(val)); } catch {}
+                    }}
                   colorClass="bg-blue-500"
                 />
               </div>
+              )}
             </div>
           </div>
         </div>
@@ -554,7 +540,7 @@ export default function ConfigModal({
               <Icon className="w-4 h-4" />
             </div>
             <span className={`flex-1 text-[13px] font-semibold transition-colors ${isOpen ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>{title}</span>
-            <ChevronDownIcon className={`w-3.5 h-3.5 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
           </button>
           <div
             className="grid transition-all duration-200 ease-in-out"
@@ -709,7 +695,7 @@ export default function ConfigModal({
         {/* ── Card Style Section ── */}
         <Section
           id="cards"
-          icon={EyeIcon}
+          icon={Eye}
           title={t('settings.layoutCards')}
         >
           {/* Border Radius */}
@@ -876,7 +862,7 @@ export default function ConfigModal({
                     className="text-[10px] text-[var(--accent-color)] hover:text-[var(--text-primary)] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
                   >
                     {isExpanded ? t('updates.showLess') : t('updates.showMore')}
-                    {isExpanded ? <ChevronUpIcon className="w-3 h-3" /> : <ChevronDownIcon className="w-3 h-3" />}
+                    {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                   </button>
 
                   {isExpanded && (

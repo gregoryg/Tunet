@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import IconPicker from '../components/IconPicker';
+import IconPicker from '../components/ui/IconPicker';
 
 const EditPageModal = ({ 
   isOpen, 

@@ -33,12 +33,37 @@ export const handleAddSelected = (ctx) => {
     setCostSelectionTarget,
     setSelectedNordpoolId,
     setNordpoolDecimals,
-    saveCardSetting: _saveCardSetting,
     setShowEditCardModal,
-    setEditCardSettingsKey
+    setEditCardSettingsKey,
   } = ctx;
 
   const newConfig = { ...pagesConfig };
+
+  // -- Helpers ---------------------------------------------------------------
+
+  /** Append card(s) to page, persist config, and close the add-card modal. */
+  const commitCards = (cardIds) => {
+    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), ...cardIds];
+    persistConfig(newConfig);
+    setShowAddCardModal(false);
+  };
+
+  /** Save card settings for a single card and commit it to the page. */
+  const commitSingleCard = (cardId, settingsPayload, { openEdit = false } = {}) => {
+    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
+    const newSettings = {
+      ...cardSettings,
+      [settingsKey]: { ...(cardSettings[settingsKey] || {}), ...settingsPayload },
+    };
+    persistCardSettings(newSettings);
+    commitCards([cardId]);
+    if (openEdit) {
+      setShowEditCardModal(cardId);
+      setEditCardSettingsKey(settingsKey);
+    }
+  };
+
+  // -- Header (special case: plain entities) ---------------------------------
 
   if (addCardTargetPage === 'header') {
     newConfig.header = [...(newConfig.header || []), ...selectedEntities];
@@ -48,187 +73,124 @@ export const handleAddSelected = (ctx) => {
     return;
   }
 
-  if (addCardType === 'weather') {
-    if (!selectedWeatherId) return;
-    const cardId = `weather_temp_${Date.now()}`;
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
+  // -- Card-type handlers ----------------------------------------------------
 
-    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-    const newSettings = { ...cardSettings, [settingsKey]: { ...(cardSettings[settingsKey] || {}), weatherId: selectedWeatherId, tempId: selectedTempId || null } };
-    persistCardSettings(newSettings);
+  switch (addCardType) {
+    case 'weather': {
+      if (!selectedWeatherId) return;
+      const cardId = `weather_temp_${Date.now()}`;
+      commitSingleCard(cardId, { weatherId: selectedWeatherId, tempId: selectedTempId || null });
+      setSelectedWeatherId(null);
+      setSelectedTempId(null);
+      return;
+    }
 
-    setSelectedWeatherId(null);
-    setSelectedTempId(null);
-    setShowAddCardModal(false);
-    return;
-  }
+    case 'calendar': {
+      const cardId = selectedEntities.length === 1 && selectedEntities[0].startsWith('calendar_card_')
+        ? selectedEntities[0]
+        : `calendar_card_${Date.now()}`;
+      commitCards([cardId]);
+      return;
+    }
 
-  if (addCardType === 'calendar') {
-    const cardId = selectedEntities.length === 1 && selectedEntities[0].startsWith('calendar_card_')
-      ? selectedEntities[0]
-      : `calendar_card_${Date.now()}`;
+    case 'todo': {
+      const cardId = `todo_card_${Date.now()}`;
+      commitSingleCard(cardId, { size: 'large' }, { openEdit: true });
+      return;
+    }
 
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
-    setShowAddCardModal(false);
-    return;
-  }
+    case 'media': {
+      if (selectedEntities.length === 0) return;
+      const cardId = `media_group_${Date.now()}`;
+      commitSingleCard(cardId, { mediaIds: selectedEntities });
+      setSelectedEntities([]);
+      return;
+    }
 
-  if (addCardType === 'todo') {
-    const cardId = `todo_card_${Date.now()}`;
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
+    case 'climate': {
+      if (selectedEntities.length === 0) return;
+      const newSettings = { ...cardSettings };
+      const newCardIds = selectedEntities.map((entityId) => {
+        const cardId = `climate_card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
+        newSettings[settingsKey] = { ...(newSettings[settingsKey] || {}), climateId: entityId };
+        return cardId;
+      });
+      persistCardSettings(newSettings);
+      commitCards(newCardIds);
+      setSelectedEntities([]);
+      return;
+    }
 
-    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-    const newSettings = {
-      ...cardSettings,
-      [settingsKey]: { ...(cardSettings[settingsKey] || {}), size: 'large' }
-    };
-    persistCardSettings(newSettings);
+    case 'cover': {
+      if (selectedEntities.length === 0) return;
+      const newSettings = { ...cardSettings };
+      const newCardIds = selectedEntities.map((entityId) => {
+        const cardId = `cover_card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
+        newSettings[settingsKey] = { ...(newSettings[settingsKey] || {}), coverId: entityId };
+        return cardId;
+      });
+      persistCardSettings(newSettings);
+      commitCards(newCardIds);
+      setSelectedEntities([]);
+      return;
+    }
 
-    setShowAddCardModal(false);
-    setShowEditCardModal(cardId);
-    setEditCardSettingsKey(settingsKey);
-    return;
-  }
-
-  if (addCardType === 'media') {
-    if (selectedEntities.length === 0) return;
-    const cardId = `media_group_${Date.now()}`;
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
-
-    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-    const newSettings = { ...cardSettings, [settingsKey]: { ...(cardSettings[settingsKey] || {}), mediaIds: selectedEntities } };
-    persistCardSettings(newSettings);
-
-    setSelectedEntities([]);
-    setShowAddCardModal(false);
-    return;
-  }
-
-  if (addCardType === 'climate') {
-    if (selectedEntities.length === 0) return;
-
-    const newCardIds = [];
-    const newSettings = { ...cardSettings };
-
-    selectedEntities.forEach((entityId) => {
-      const cardId = `climate_card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      newCardIds.push(cardId);
-      const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-      newSettings[settingsKey] = { ...(newSettings[settingsKey] || {}), climateId: entityId };
-    });
-
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), ...newCardIds];
-    persistConfig(newConfig);
-    persistCardSettings(newSettings);
-
-    setSelectedEntities([]);
-    setShowAddCardModal(false);
-    return;
-  }
-
-  if (addCardType === 'androidtv') {
-    if (!selectedAndroidTVMediaId) return;
-    const cardId = `androidtv_card_${Date.now()}`;
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
-
-    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-    const newSettings = {
-      ...cardSettings,
-      [settingsKey]: {
-        ...(cardSettings[settingsKey] || {}),
+    case 'androidtv': {
+      if (!selectedAndroidTVMediaId) return;
+      const cardId = `androidtv_card_${Date.now()}`;
+      commitSingleCard(cardId, {
         mediaPlayerId: selectedAndroidTVMediaId,
-        remoteId: selectedAndroidTVRemoteId || null
+        remoteId: selectedAndroidTVRemoteId || null,
+      });
+      setSelectedAndroidTVMediaId(null);
+      setSelectedAndroidTVRemoteId(null);
+      return;
+    }
+
+    case 'cost': {
+      if (!selectedCostTodayId || !selectedCostMonthId) return;
+      const cardId = `cost_card_${Date.now()}`;
+      commitSingleCard(cardId, { todayId: selectedCostTodayId, monthId: selectedCostMonthId });
+      setSelectedCostTodayId(null);
+      setSelectedCostMonthId(null);
+      setCostSelectionTarget('today');
+      return;
+    }
+
+    case 'nordpool': {
+      if (!selectedNordpoolId) return;
+      const cardId = `nordpool_card_${Date.now()}`;
+      commitSingleCard(cardId, { nordpoolId: selectedNordpoolId, decimals: nordpoolDecimals });
+      setSelectedNordpoolId(null);
+      setNordpoolDecimals(2);
+      return;
+    }
+
+    case 'car': {
+      const cardId = `car_card_${Date.now()}`;
+      commitSingleCard(cardId, { type: 'car', size: 'large' }, { openEdit: true });
+      return;
+    }
+
+    // entity / toggle / sensor — default path for plain HA entities
+    default: {
+      if (addCardType === 'entity' || addCardType === 'toggle' || addCardType === 'sensor') {
+        const newSettings = { ...cardSettings };
+        selectedEntities.forEach((id) => {
+          const settingsKey = getCardSettingsKey(id, addCardTargetPage);
+          newSettings[settingsKey] = {
+            ...(newSettings[settingsKey] || {}),
+            type: addCardType,
+            size: newSettings[settingsKey]?.size || 'large',
+          };
+        });
+        persistCardSettings(newSettings);
       }
-    };
-    persistCardSettings(newSettings);
 
-    setSelectedAndroidTVMediaId(null);
-    setSelectedAndroidTVRemoteId(null);
-    setShowAddCardModal(false);
-    return;
+      commitCards(selectedEntities);
+      setSelectedEntities([]);
+    }
   }
-
-  if (addCardType === 'cost') {
-    if (!selectedCostTodayId || !selectedCostMonthId) return;
-    const cardId = `cost_card_${Date.now()}`;
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
-
-    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-    const newSettings = {
-      ...cardSettings,
-      [settingsKey]: {
-        ...(cardSettings[settingsKey] || {}),
-        todayId: selectedCostTodayId,
-        monthId: selectedCostMonthId
-      }
-    };
-    persistCardSettings(newSettings);
-
-    setSelectedCostTodayId(null);
-    setSelectedCostMonthId(null);
-    setCostSelectionTarget('today');
-    setShowAddCardModal(false);
-    return;
-  }
-
-  if (addCardType === 'nordpool') {
-    if (!selectedNordpoolId) return;
-    const cardId = `nordpool_card_${Date.now()}`;
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
-
-    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-    const newSettings = {
-      ...cardSettings,
-      [settingsKey]: {
-        ...(cardSettings[settingsKey] || {}),
-        nordpoolId: selectedNordpoolId,
-        decimals: nordpoolDecimals
-      }
-    };
-    persistCardSettings(newSettings);
-
-    setSelectedNordpoolId(null);
-    setNordpoolDecimals(2);
-    setShowAddCardModal(false);
-    return;
-  }
-
-  if (addCardType === 'car') {
-    const cardId = `car_card_${Date.now()}`;
-    newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), cardId];
-    persistConfig(newConfig);
-
-    const settingsKey = getCardSettingsKey(cardId, addCardTargetPage);
-    const newSettings = {
-      ...cardSettings,
-      [settingsKey]: { ...(cardSettings[settingsKey] || {}), type: 'car', size: 'large' }
-    };
-    persistCardSettings(newSettings);
-
-    setShowAddCardModal(false);
-    setShowEditCardModal(cardId);
-    setEditCardSettingsKey(settingsKey);
-    return;
-  }
-
-  if (addCardType === 'entity' || addCardType === 'toggle' || addCardType === 'sensor') {
-    const newSettings = { ...cardSettings };
-    selectedEntities.forEach((id) => {
-      const settingsKey = getCardSettingsKey(id, addCardTargetPage);
-      newSettings[settingsKey] = { ...(newSettings[settingsKey] || {}), type: addCardType, size: newSettings[settingsKey]?.size || 'large' };
-    });
-    persistCardSettings(newSettings);
-  }
-
-  newConfig[addCardTargetPage] = [...(newConfig[addCardTargetPage] || []), ...selectedEntities];
-  persistConfig(newConfig);
-  setSelectedEntities([]);
-  setShowAddCardModal(false);
 };

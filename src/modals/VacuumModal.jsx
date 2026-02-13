@@ -1,5 +1,5 @@
 import { X, Bot, MapPin, Battery, Play, Pause, Home, Fan, Droplets } from '../icons';
-import ModernDropdown from '../components/ModernDropdown';
+import ModernDropdown from '../components/ui/ModernDropdown';
 
 const getDisplayName = (entity, fallback) => entity?.attributes?.friendly_name || fallback;
 

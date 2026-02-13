@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useConnectionSetup } from '../hooks/useConnectionSetup';
 
 // Mock dependencies
-vi.mock('../onboarding', () => ({
+vi.mock('../config/onboarding', () => ({
   validateUrl: vi.fn((url) => {
     if (!url) return false;
     try {

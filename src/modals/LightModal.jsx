@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, AlertTriangle, Lightbulb, Utensils, Sofa, LampDesk, Palette, Thermometer, Sun } from '../icons';
-import M3Slider from '../components/M3Slider';
-import { getIconComponent } from '../iconMap';
+import M3Slider from '../components/ui/M3Slider';
+import { getIconComponent } from '../icons';
 
 export default function LightModal({
   show,

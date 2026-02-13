@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useResponsiveGrid } from '../hooks/useResponsiveGrid';
-import { MOBILE_BREAKPOINT } from '../constants';
+import { MOBILE_BREAKPOINT } from '../config/constants';
 
 // ── Window resize helper ─────────────────────────────────────────────────
 function fireResize(width) {

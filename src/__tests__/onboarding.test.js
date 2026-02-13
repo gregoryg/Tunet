@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateUrl } from '../onboarding';
+import { validateUrl } from '../config/onboarding';
 
 describe('validateUrl', () => {
   it('accepts valid http URLs', () => {

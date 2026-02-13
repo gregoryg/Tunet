@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { DEFAULT_PAGES_CONFIG } from '../defaults';
+import { DEFAULT_PAGES_CONFIG } from '../config/defaults';
 
 const readJSON = (key, fallback) => {
   try {
@@ -95,7 +95,7 @@ export const PageProvider = ({ children }) => {
   const [customIcons, setCustomIcons] = useState({});
   const [hiddenCards, setHiddenCards] = useState([]);
   const [pageSettings, setPageSettings] = useState({});
-  const [gridColumns, setGridColumns] = useState(3);
+  const [gridColumns, setGridColumns] = useState(4);
   const [gridGapH, setGridGapH] = useState(20);
   const [gridGapV, setGridGapV] = useState(20);
   const [cardBorderRadius, setCardBorderRadius] = useState(16);
