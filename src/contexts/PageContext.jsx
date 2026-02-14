@@ -185,17 +185,34 @@ export const PageProvider = ({ children }) => {
   };
 
   const savePageSetting = (id, setting, value) => {
-    const newSettings = { 
-      ...pageSettings, 
-      [id]: { ...(pageSettings[id] || {}), [setting]: value } 
-    };
-    setPageSettings(newSettings);
-    writeJSON('tunet_page_settings', newSettings);
+    setPageSettings(prev => {
+      const newSettings = { 
+        ...prev, 
+        [id]: { ...(prev[id] || {}), [setting]: value } 
+      };
+      writeJSON('tunet_page_settings', newSettings);
+      return newSettings;
+    });
   };
 
   const persistPageSettings = (newSettings) => {
     setPageSettings(newSettings);
     writeJSON('tunet_page_settings', newSettings);
+  };
+
+  const persistCustomNames = (newNames) => {
+    setCustomNames(newNames);
+    writeJSON('tunet_custom_names', newNames);
+  };
+
+  const persistCustomIcons = (newIcons) => {
+    setCustomIcons(newIcons);
+    writeJSON('tunet_custom_icons', newIcons);
+  };
+
+  const persistHiddenCards = (newHidden) => {
+    setHiddenCards(newHidden);
+    writeJSON('tunet_hidden_cards', newHidden);
   };
 
   const toggleCardVisibility = (cardId) => {
@@ -270,6 +287,9 @@ export const PageProvider = ({ children }) => {
     pageSettings,
     setPageSettings,
     persistPageSettings,
+    persistCustomNames,
+    persistCustomIcons,
+    persistHiddenCards,
     savePageSetting,
     gridColumns,
     setGridColumns: (val) => {
