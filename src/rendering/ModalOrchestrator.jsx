@@ -116,7 +116,7 @@ export default function ModalOrchestrator({
     pageDefaults, editingPage, setEditingPage,
     newPageLabel, setNewPageLabel, newPageIcon, setNewPageIcon,
     createPage, createMediaPage, deletePage,
-    pageSettings, savePageSetting,
+    pageSettings, savePageSetting, persistPageSettings,
     pagesConfig, persistConfig,
   } = pageManagement;
 
@@ -146,9 +146,9 @@ export default function ModalOrchestrator({
 
   const {
     cardSettings, saveCardSetting, persistCardSettings,
-    customNames, saveCustomName,
-    customIcons, saveCustomIcon,
-    hiddenCards, toggleCardVisibility,
+    customNames, saveCustomName, persistCustomNames,
+    customIcons, saveCustomIcon, persistCustomIcons,
+    hiddenCards, toggleCardVisibility, persistHiddenCards,
     getCardSettingsKey,
     statusPillsConfig, saveStatusPillsConfig,
   } = cardConfig;
@@ -201,6 +201,10 @@ export default function ModalOrchestrator({
       // PageContext setters
       persistConfig,
       persistCardSettings,
+      persistPageSettings,
+      persistCustomNames,
+      persistCustomIcons,
+      persistHiddenCards,
       setGridColumns,
       setGridGapH,
       setGridGapV,

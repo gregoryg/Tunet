@@ -83,6 +83,9 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     toggleCardVisibility,
     pageSettings,
     persistPageSettings,
+    persistCustomNames,
+    persistCustomIcons,
+    persistHiddenCards,
     savePageSetting,
     gridColumns,
     setGridColumns,
@@ -739,7 +742,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
             pageDefaults, editingPage, setEditingPage,
             newPageLabel, setNewPageLabel, newPageIcon, setNewPageIcon,
             createPage, createMediaPage, deletePage,
-            pageSettings, savePageSetting,
+            pageSettings, savePageSetting, persistPageSettings,
             pagesConfig, persistConfig, activePage,
           }}
           entityHelpers={{
@@ -766,9 +769,9 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
           }}
           cardConfig={{
             cardSettings, saveCardSetting, persistCardSettings,
-            customNames, saveCustomName,
-            customIcons, saveCustomIcon,
-            hiddenCards, toggleCardVisibility,
+            customNames, saveCustomName, persistCustomNames,
+            customIcons, saveCustomIcon, persistCustomIcons,
+            hiddenCards, toggleCardVisibility, persistHiddenCards,
             getCardSettingsKey,
             statusPillsConfig, saveStatusPillsConfig,
           }}
