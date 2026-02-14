@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 - Release metadata sync.
+- Responsive grid and compact-card layout improvements that resolve issue #13.
 
 
 ## [1.0.0-beta.12] — 2026-02-14
