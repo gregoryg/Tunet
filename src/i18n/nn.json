@@ -534,6 +534,7 @@
   "header.visibility": "Synlegheit",
   "header.showTitle": "Vis overskrift",
   "header.showClock": "Vis klokke",
+  "header.showClockOnMobile": "Vis klokke på mobil",
   "header.showDate": "Vis dato",
   "modal.editHeader.title": "Rediger Header",
   "common.optional": "Valfritt",

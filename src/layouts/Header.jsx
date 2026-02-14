@@ -56,6 +56,7 @@ export default function Header({
   const lsMobile = letterSpacingMobile[headerSettings?.letterSpacing || 'normal'] || '0.2em';
   const fontStyleVal = headerSettings?.fontStyle || 'normal';
   const clockFormat = headerSettings?.clockFormat || '24h';
+  const showClockOnMobile = headerSettings?.showClockOnMobile ?? true;
   const is12h = clockFormat === '12h';
   const clockScale = headerSettings?.clockScale ?? 1.0;
   const dateScale = headerSettings?.dateScale ?? 1.0;
@@ -108,10 +109,24 @@ export default function Header({
 
         {headerSettings.showClock && !isMobile && (
           <h2 
-            className="font-light tracking-[0.1em] leading-none select-none hidden md:block" 
+            className="font-light tracking-[0.1em] leading-none select-none" 
             style={{ 
               fontSize: clockFontSize,
-              color: 'var(--text-muted)' 
+              color: 'var(--text-muted)',
+              fontFamily: resolvedFontFamily,
+            }}
+          >
+            {timeStr}
+          </h2>
+        )}
+
+        {headerSettings.showClock && isMobile && showClockOnMobile && (
+          <h2
+            className="font-light tracking-[0.08em] leading-none select-none"
+            style={{
+              fontSize: clockFontSize,
+              color: 'var(--text-muted)',
+              fontFamily: resolvedFontFamily,
             }}
           >
             {timeStr}
@@ -123,7 +138,10 @@ export default function Header({
       {headerSettings.showDate && !isMobile && (
         <p 
           className="text-gray-500 font-medium uppercase leading-none opacity-50 tracking-[0.2em] md:tracking-[0.6em] mt-1"
-          style={{ fontSize: `calc(0.75rem * ${dateScale})` }}
+          style={{
+            fontSize: `calc(0.75rem * ${dateScale})`,
+            fontFamily: resolvedFontFamily,
+          }}
         >
           {now.toLocaleDateString('nn-NO', { weekday: 'long', day: 'numeric', month: 'long' })}
         </p>
