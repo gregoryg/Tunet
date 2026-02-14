@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import M3Slider from '../ui/M3Slider';
+import { getMaxGridColumnsForWidth, MAX_GRID_COLUMNS, MIN_GRID_COLUMNS } from '../../hooks/useResponsiveGrid';
 import {
   LayoutGrid,
   RefreshCw,
@@ -28,6 +29,8 @@ export default function LayoutSidebar({
   setGridGapV,
   gridColumns,
   setGridColumns,
+  dynamicGridColumns,
+  setDynamicGridColumns,
   cardBorderRadius,
   setCardBorderRadius,
   cardTransparency,
@@ -38,7 +41,20 @@ export default function LayoutSidebar({
   updateSectionSpacing,
 }) {
   const [layoutSections, setLayoutSections] = useState({ grid: true, spacing: false, cards: false });
+  const [maxGridColumns, setMaxGridColumns] = useState(() => {
+    if (typeof window === 'undefined') return MAX_GRID_COLUMNS;
+    return getMaxGridColumnsForWidth(window.innerWidth);
+  });
+  const selectableMaxGridColumns = dynamicGridColumns ? Math.min(maxGridColumns, 4) : maxGridColumns;
   const toggleSection = (key) => setLayoutSections(prev => ({ ...prev, [key]: !prev[key] }));
+  const effectiveGridColumns = Math.max(MIN_GRID_COLUMNS, Math.min(gridColumns, selectableMaxGridColumns));
+
+  useEffect(() => {
+    const update = () => setMaxGridColumns(getMaxGridColumnsForWidth(window.innerWidth));
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const ResetButton = ({ onClick }) => (
     <button 
@@ -151,17 +167,43 @@ export default function LayoutSidebar({
           {/* Grid Columns */}
           <div>
             <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{t('settings.gridDynamic')}</span>
+              <div className="flex p-0.5 rounded-lg border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                <button
+                  type="button"
+                  onClick={() => setDynamicGridColumns(false)}
+                  className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${!dynamicGridColumns ? 'text-white' : ''}`}
+                  style={!dynamicGridColumns ? { backgroundColor: 'var(--accent-color)' } : { color: 'var(--text-secondary)' }}
+                >
+                  {t('settings.manual')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDynamicGridColumns(true)}
+                  className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${dynamicGridColumns ? 'text-white' : ''}`}
+                  style={dynamicGridColumns ? { backgroundColor: 'var(--accent-color)' } : { color: 'var(--text-secondary)' }}
+                >
+                  {t('common.auto')}
+                </button>
+              </div>
+            </div>
+            {dynamicGridColumns && (
+              <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
+                {t('settings.gridDynamicHint')}
+              </p>
+            )}
+            <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{t('settings.gridColumns')}</span>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] tabular-nums font-mono" style={{ color: 'var(--accent-color)' }}>{gridColumns}</span>
-                {gridColumns !== 4 && <ResetButton onClick={() => setGridColumns(4)} />}
+                <span className="text-[11px] tabular-nums font-mono" style={{ color: 'var(--accent-color)' }}>{effectiveGridColumns}</span>
+                {gridColumns !== 4 && <ResetButton onClick={() => setGridColumns(Math.min(4, maxGridColumns))} />}
               </div>
             </div>
             <M3Slider 
-              min={1} 
-              max={5} 
+              min={MIN_GRID_COLUMNS}
+              max={selectableMaxGridColumns}
               step={1} 
-              value={gridColumns} 
+              value={effectiveGridColumns}
               onChange={(e) => setGridColumns(parseInt(e.target.value, 10))} 
               colorClass="bg-blue-500" 
             />

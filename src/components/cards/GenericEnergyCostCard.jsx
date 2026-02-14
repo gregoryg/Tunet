@@ -65,10 +65,6 @@ export default function GenericEnergyCostCard({
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1 shrink-0">
-          <span className="text-[10px] text-[var(--text-secondary)] uppercase font-bold tracking-wider opacity-60">{monthLabel}</span>
-          <span className="text-base font-medium text-[var(--text-primary)]">{formatMonthValue(monthEntity)} kr</span>
-        </div>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { DEFAULT_PAGES_CONFIG } from '../config/defaults';
+import { MAX_GRID_COLUMNS, MIN_GRID_COLUMNS } from '../hooks/useResponsiveGrid';
 
 const readJSON = (key, fallback) => {
   try {
@@ -22,11 +23,25 @@ const readNumber = (key, fallback) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const readBoolean = (key, fallback) => {
+  const raw = localStorage.getItem(key);
+  if (raw === null) return fallback;
+  if (raw === '1' || raw === 'true') return true;
+  if (raw === '0' || raw === 'false') return false;
+  return fallback;
+};
+
 const deprecatedCardIds = ['power', 'rocky', 'climate', 'shield', 'weather', 'car', 'sonos'];
 const DEFAULT_SECTION_SPACING = {
   headerToStatus: 16,
   statusToNav: 24,
   navToGrid: 24,
+};
+
+const normalizeGridColumns = (value) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 4;
+  return Math.max(MIN_GRID_COLUMNS, Math.min(Math.round(parsed), MAX_GRID_COLUMNS));
 };
 
 /** Synchronously load & migrate pagesConfig from localStorage. */
@@ -96,6 +111,7 @@ export const PageProvider = ({ children }) => {
   const [hiddenCards, setHiddenCards] = useState([]);
   const [pageSettings, setPageSettings] = useState({});
   const [gridColumns, setGridColumns] = useState(4);
+  const [dynamicGridColumns, setDynamicGridColumns] = useState(true);
   const [gridGapH, setGridGapH] = useState(20);
   const [gridGapV, setGridGapV] = useState(20);
   const [cardBorderRadius, setCardBorderRadius] = useState(16);
@@ -120,7 +136,10 @@ export const PageProvider = ({ children }) => {
     if (icons) setCustomIcons(icons);
 
     const savedCols = readNumber('tunet_grid_columns', null);
-    if (savedCols !== null) setGridColumns(savedCols);
+    if (savedCols !== null) setGridColumns(normalizeGridColumns(savedCols));
+
+    const savedDynamicCols = readBoolean('tunet_grid_columns_dynamic', true);
+    setDynamicGridColumns(savedDynamicCols);
 
     const savedGap = readNumber('tunet_grid_gap', null);
     const savedGapH = readNumber('tunet_grid_gap_h', null);
@@ -293,11 +312,22 @@ export const PageProvider = ({ children }) => {
     savePageSetting,
     gridColumns,
     setGridColumns: (val) => {
-      setGridColumns(val);
+      const next = normalizeGridColumns(val);
+      setGridColumns(next);
       try {
-        localStorage.setItem('tunet_grid_columns', String(val));
+        localStorage.setItem('tunet_grid_columns', String(next));
       } catch (error) {
         console.error('Failed to save grid columns:', error);
+      }
+    },
+    dynamicGridColumns,
+    setDynamicGridColumns: (val) => {
+      const next = Boolean(val);
+      setDynamicGridColumns(next);
+      try {
+        localStorage.setItem('tunet_grid_columns_dynamic', next ? '1' : '0');
+      } catch (error) {
+        console.error('Failed to save dynamic grid columns setting:', error);
       }
     },
     headerScale,

@@ -89,6 +89,8 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     savePageSetting,
     gridColumns,
     setGridColumns,
+    dynamicGridColumns,
+    setDynamicGridColumns,
     gridGapH,
     setGridGapH,
     gridGapV,
@@ -207,7 +209,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
   const [tempHistoryById, _setTempHistoryById] = useTempHistory(conn, cardSettings);
 
   // ── Responsive grid ────────────────────────────────────────────────────
-  const { gridColCount, isCompactCards, isMobile } = useResponsiveGrid(gridColumns);
+  const { gridColCount, isCompactCards, isMobile } = useResponsiveGrid(gridColumns, dynamicGridColumns);
 
   // ── Connection / onboarding hook ───────────────────────────────────────
   const {
@@ -495,7 +497,13 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
         role="main"
         aria-label="Dashboard"
         className={`relative z-10 w-full max-w-[1600px] mx-auto py-6 md:py-10 ${
-          isMobile ? 'px-5 mobile-grid' : (gridColCount === 1 ? 'px-10 sm:px-16 md:px-24' : 'px-6 md:px-20')
+          isMobile
+            ? 'px-5 mobile-grid'
+            : (gridColCount === 1
+              ? 'px-10 sm:px-16 md:px-24'
+              : (gridColCount === 3
+                ? (dynamicGridColumns ? 'px-4 md:px-12' : 'px-4 md:px-20')
+                : 'px-6 md:px-20'))
         } ${isCompactCards ? 'compact-cards' : ''}`}
       >
         <Header
@@ -721,6 +729,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
           layout={{
             gridGapH, setGridGapH, gridGapV, setGridGapV,
             gridColumns, setGridColumns,
+            dynamicGridColumns, setDynamicGridColumns,
             cardBorderRadius, setCardBorderRadius,
             sectionSpacing, updateSectionSpacing,
             headerTitle, headerScale, headerSettings,

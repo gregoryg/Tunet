@@ -17,26 +17,32 @@ function fireResize(width) {
 // Column count at different breakpoints
 // ═════════════════════════════════════════════════════════════════════════
 describe('useResponsiveGrid › column count', () => {
-  it('returns full gridColumns at ≥1280px', () => {
+  it('returns full gridColumns at ≥1024px', () => {
     fireResize(1440);
     const { result } = renderHook(() => useResponsiveGrid(5));
     expect(result.current.gridColCount).toBe(5);
   });
 
-  it('caps at 3 for 1024–1279px range', () => {
-    fireResize(1100);
+  it('caps at 4 for 768–1023px range', () => {
+    fireResize(900);
     const { result } = renderHook(() => useResponsiveGrid(5));
-    expect(result.current.gridColCount).toBe(3);
+    expect(result.current.gridColCount).toBe(4);
   });
 
-  it('returns min(gridColumns, 3) when gridColumns < 3 in mid range', () => {
-    fireResize(1100);
+  it('returns min(gridColumns, 4) when gridColumns < 4 in 768–1023px range', () => {
+    fireResize(900);
     const { result } = renderHook(() => useResponsiveGrid(2));
     expect(result.current.gridColCount).toBe(2);
   });
 
-  it('returns 2 for <1024px', () => {
-    fireResize(800);
+  it('caps at 3 for 480–767px range', () => {
+    fireResize(700);
+    const { result } = renderHook(() => useResponsiveGrid(5));
+    expect(result.current.gridColCount).toBe(3);
+  });
+
+  it('caps at 2 below 480px', () => {
+    fireResize(420);
     const { result } = renderHook(() => useResponsiveGrid(5));
     expect(result.current.gridColCount).toBe(2);
   });
@@ -46,8 +52,28 @@ describe('useResponsiveGrid › column count', () => {
     const { result } = renderHook(() => useResponsiveGrid(4));
     expect(result.current.gridColCount).toBe(4);
 
-    act(() => fireResize(800));
-    expect(result.current.gridColCount).toBe(2);
+    act(() => fireResize(700));
+    expect(result.current.gridColCount).toBe(3);
+  });
+});
+
+describe('useResponsiveGrid › dynamic columns mode', () => {
+  it('reduces 4 selected columns to 3 around tablet portrait widths', () => {
+    fireResize(820);
+    const { result } = renderHook(() => useResponsiveGrid(4, true));
+    expect(result.current.gridColCount).toBe(3);
+  });
+
+  it('keeps 4 selected columns on wider tablet/desktop widths', () => {
+    fireResize(1200);
+    const { result } = renderHook(() => useResponsiveGrid(4, true));
+    expect(result.current.gridColCount).toBe(4);
+  });
+
+  it('caps at 4 in auto mode even when 5 is selected on large screens', () => {
+    fireResize(1440);
+    const { result } = renderHook(() => useResponsiveGrid(5, true));
+    expect(result.current.gridColCount).toBe(4);
   });
 });
 

@@ -76,9 +76,6 @@ const CarCard = ({
   const isSmall = sizeSetting === 'small';
 
   if (isSmall) {
-    const statusLabel = isCharging
-      ? t('car.charging')
-      : (locationLabel ? String(locationLabel) : t('common.off'));
     return (
       <div key={cardId} {...dragProps} data-haptic={editMode ? undefined : 'card'} onClick={(e) => { e.stopPropagation(); if (!editMode) onOpen(); }} className={`touch-feedback p-4 pl-5 rounded-3xl flex items-center justify-between gap-4 transition-all duration-500 border group relative overflow-hidden font-sans h-full ${!editMode ? 'cursor-pointer active:scale-[0.98]' : 'cursor-move'}`} style={{...cardStyle, backgroundColor: isHtg ? 'rgba(249, 115, 22, 0.06)' : 'var(--card-bg)', borderColor: editMode ? 'rgba(59, 130, 246, 0.2)' : (isHtg ? 'rgba(249, 115, 22, 0.2)' : 'var(--card-border)')}}>
         {controls}
@@ -88,20 +85,15 @@ const CarCard = ({
           </div>
           <div className="flex flex-col min-w-0">
             <p className="text-[var(--text-secondary)] text-xs tracking-widest uppercase font-bold opacity-60 truncate leading-none mb-1.5">{name}</p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col leading-tight gap-0.5">
               <span className={`text-sm font-bold ${isCharging ? 'text-green-400' : 'text-[var(--text-primary)]'}`}>
                 {batteryValue !== null ? `${Math.round(batteryValue)}%` : '--'}
               </span>
               {rangeValue !== null && (
-                <span className="text-xs text-[var(--text-secondary)]">{Math.round(rangeValue)}km</span>
+                <span className="text-xs text-[var(--text-secondary)]">{Math.round(rangeValue)} km</span>
               )}
             </div>
           </div>
-        </div>
-        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all ${isHtg ? 'bg-orange-500/10 border-orange-500/20 text-orange-400' : (isCharging ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-[var(--glass-bg)] border-[var(--glass-border)] text-[var(--text-secondary)]')}`}>
-          <span className="text-[10px] font-bold uppercase tracking-widest">
-            {statusLabel}
-          </span>
         </div>
       </div>
     );

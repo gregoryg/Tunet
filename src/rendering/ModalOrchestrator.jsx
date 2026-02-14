@@ -96,6 +96,7 @@ export default function ModalOrchestrator({
   const {
     gridGapH, setGridGapH, gridGapV, setGridGapV,
     gridColumns, setGridColumns,
+    dynamicGridColumns, setDynamicGridColumns,
     cardBorderRadius, setCardBorderRadius,
     sectionSpacing, updateSectionSpacing,
     headerTitle, headerScale, headerSettings,
@@ -276,6 +277,8 @@ export default function ModalOrchestrator({
             setGridGapV={setGridGapV}
             gridColumns={gridColumns}
             setGridColumns={setGridColumns}
+            dynamicGridColumns={dynamicGridColumns}
+            setDynamicGridColumns={setDynamicGridColumns}
             cardBorderRadius={cardBorderRadius}
             setCardBorderRadius={setCardBorderRadius}
             bgMode={bgMode}
@@ -341,6 +344,8 @@ export default function ModalOrchestrator({
           setGridGapV={setGridGapV}
           gridColumns={gridColumns}
           setGridColumns={setGridColumns}
+          dynamicGridColumns={dynamicGridColumns}
+          setDynamicGridColumns={setDynamicGridColumns}
           cardBorderRadius={cardBorderRadius}
           setCardBorderRadius={setCardBorderRadius}
           cardTransparency={cardTransparency}

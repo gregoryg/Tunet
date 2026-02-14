@@ -94,10 +94,10 @@ export default function GenericNordpoolCard({
   const priceDisplay = currentPrice > 0 ? currentPrice.toFixed(decimals) : '0';
 
   if (settings.size === 'small') {
-    let pillClass = 'bg-blue-500/10 border-blue-500/20 text-blue-400';
-    if (levelColor.includes('red')) pillClass = 'bg-red-500/10 border-red-500/20 text-red-400';
-    else if (levelColor.includes('orange')) pillClass = 'bg-orange-500/10 border-orange-500/20 text-orange-400';
-    else if (levelColor.includes('green')) pillClass = 'bg-green-500/10 border-green-500/20 text-green-400';
+    let indicatorClass = 'bg-blue-400 ring-blue-400/30 shadow-blue-500/40';
+    if (levelColor.includes('red')) indicatorClass = 'bg-red-400 ring-red-400/30 shadow-red-500/40';
+    else if (levelColor.includes('orange')) indicatorClass = 'bg-orange-400 ring-orange-400/30 shadow-orange-500/40';
+    else if (levelColor.includes('green')) indicatorClass = 'bg-green-400 ring-green-400/30 shadow-green-500/40';
 
     return (
       <div
@@ -119,16 +119,19 @@ export default function GenericNordpoolCard({
           </div>
           
           <div className="flex flex-col min-w-0">
-            <p className="text-[var(--text-secondary)] text-[10px] tracking-widest uppercase font-bold opacity-60 truncate leading-none mb-1.5">{name}</p>
+            <div className="flex items-center gap-2 mb-1.5">
+              <p className="text-[var(--text-secondary)] text-[10px] tracking-widest uppercase font-bold opacity-60 truncate leading-none">{name}</p>
+              <span
+                className={`w-2.5 h-2.5 rounded-full ring-2 shadow-sm shrink-0 ${indicatorClass}`}
+                title={levelText}
+                aria-label={levelText}
+              />
+            </div>
             <div className="flex items-baseline gap-1 leading-none">
                 <span className="text-xl font-bold text-[var(--text-primary)]">{priceDisplay}</span>
                 <span className="text-xs font-medium text-[var(--text-muted)]">{translate('power.ore')}</span>
             </div>
           </div>
-        </div>
-
-        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-colors duration-500 ${pillClass}`}>
-            <span className="text-[10px] font-bold uppercase tracking-widest">{levelText}</span>
         </div>
       </div>
     );

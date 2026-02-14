@@ -3,6 +3,7 @@ import ModernDropdown from '../components/ui/ModernDropdown';
 import M3Slider from '../components/ui/M3Slider';
 import { GRADIENT_PRESETS } from '../contexts/ConfigContext';
 import { hasOAuthTokens } from '../services/oauthStorage';
+import { getMaxGridColumnsForWidth, MAX_GRID_COLUMNS, MIN_GRID_COLUMNS } from '../hooks/useResponsiveGrid';
 import {
   X,
   Check,
@@ -74,6 +75,8 @@ export default function ConfigModal({
   setGridGapV,
   gridColumns,
   setGridColumns,
+  dynamicGridColumns,
+  setDynamicGridColumns,
   cardBorderRadius,
   setCardBorderRadius,
   bgMode,
@@ -101,6 +104,13 @@ export default function ConfigModal({
   const [installingIds, setInstallingIds] = useState({});
   const [expandedNotes, setExpandedNotes] = useState({});
   const [layoutPreview, setLayoutPreview] = useState(false);
+  const [maxGridColumns, setMaxGridColumns] = useState(() => {
+    if (typeof window === 'undefined') return MAX_GRID_COLUMNS;
+    return getMaxGridColumnsForWidth(window.innerWidth);
+  });
+  const selectableMaxGridColumns = dynamicGridColumns ? Math.min(maxGridColumns, 4) : maxGridColumns;
+
+  const effectiveGridColumns = Math.max(MIN_GRID_COLUMNS, Math.min(gridColumns, selectableMaxGridColumns));
 
   const isLayoutPreview = configTab === 'layout' && layoutPreview;
 
@@ -115,6 +125,13 @@ export default function ConfigModal({
       setConfigTab('layout');
     }
   }, [layoutPreview, configTab, setConfigTab]);
+
+  useEffect(() => {
+    const update = () => setMaxGridColumns(getMaxGridColumnsForWidth(window.innerWidth));
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   if (!open) return null;
 
@@ -805,18 +822,45 @@ export default function ConfigModal({
           {/* Columns */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[12px] font-medium text-[var(--text-primary)]">{t('settings.gridDynamic')}</span>
+              <div className="flex p-0.5 rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)]">
+                <button
+                  type="button"
+                  onClick={() => setDynamicGridColumns(false)}
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${!dynamicGridColumns ? 'text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                  style={!dynamicGridColumns ? { backgroundColor: 'var(--accent-color)' } : {}}
+                >
+                  {t('settings.manual')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDynamicGridColumns(true)}
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${dynamicGridColumns ? 'text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                  style={dynamicGridColumns ? { backgroundColor: 'var(--accent-color)' } : {}}
+                >
+                  {t('common.auto')}
+                </button>
+              </div>
+            </div>
+            {dynamicGridColumns && (
+              <p className="text-[11px] text-[var(--text-muted)] mb-2.5">{t('settings.gridDynamicHint')}</p>
+            )}
+            <div className="flex items-center justify-between mb-2.5">
               <span className="text-[12px] font-medium text-[var(--text-primary)]">{t('settings.gridColumns')}</span>
-              {gridColumns !== 4 && <ResetButton onClick={() => setGridColumns(4)} />}
+              {gridColumns !== 4 && <ResetButton onClick={() => setGridColumns(Math.min(4, maxGridColumns))} />}
             </div>
             <div className="flex gap-1.5 p-0.5 rounded-xl">
-              {[2, 3, 4, 5].map(cols => (
+              {Array.from({ length: MAX_GRID_COLUMNS - MIN_GRID_COLUMNS + 1 }, (_, index) => MIN_GRID_COLUMNS + index).map(cols => (
                 <button
                   key={cols}
-                  onClick={() => setGridColumns(cols)}
+                  onClick={() => cols <= selectableMaxGridColumns && setGridColumns(cols)}
+                  disabled={cols > selectableMaxGridColumns}
                   className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${
-                    gridColumns === cols
+                    effectiveGridColumns === cols
                       ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20'
-                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5'
+                      : cols > selectableMaxGridColumns
+                        ? 'text-[var(--text-muted)] opacity-40 cursor-not-allowed'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5'
                   }`}
                 >
                   {cols}
