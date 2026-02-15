@@ -53,6 +53,7 @@ export const HomeAssistantProvider = ({ children, config }) => {
   const [conn, setConn] = useState(null);
   const [activeUrl, setActiveUrl] = useState(config.url);
   const [haUser, setHaUser] = useState(null);
+  const [haConfig, setHaConfig] = useState(null);
   const authRef = useRef(null);
 
   // Connect to Home Assistant
@@ -90,6 +91,18 @@ export const HomeAssistantProvider = ({ children, config }) => {
         console.warn('Failed to fetch HA user:', err);
       }
     }
+
+    /** Fetch the HA system config (currency, units, etc.) */
+    async function fetchHaConfig(connInstance) {
+      try {
+        const conf = await connInstance.sendMessagePromise({ type: 'config/core' });
+        if (!cancelled && conf) {
+          setHaConfig(conf);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch HA config:', err);
+      }
+    }
     
 
 
@@ -109,6 +122,7 @@ export const HomeAssistantProvider = ({ children, config }) => {
       const cleanUrl = url.replace(/\/api\/?$/, '').replace(/\/$/, '');
       const auth = createLongLivedTokenAuth(cleanUrl, config.token);
       const connInstance = await createConnection({ auth });
+      fetchHaConfig(connInstance);
       if (cancelled) { 
         connInstance.close(); 
         return null; 
@@ -154,6 +168,7 @@ export const HomeAssistantProvider = ({ children, config }) => {
       setHaUnavailable(false);
       setActiveUrl(url);
       persistConfig(url);
+      fetchHaConfig(connInstance);
       fetchCurrentUser(connInstance);
       subscribeEntities(connInstance, (updatedEntities) => {
         if (!cancelled) setEntities(updatedEntities);
@@ -247,6 +262,7 @@ export const HomeAssistantProvider = ({ children, config }) => {
     oauthExpired,
     conn,
     activeUrl,
+    haConfig,
     authRef,
     haUser,
   };

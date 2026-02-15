@@ -215,6 +215,8 @@
   "common.unknown": "Okänd",
   "common.updated": "Uppdaterad",
   "confirm.deletePage": "Är du säker på att du vill ta bort sidan?",
+  "cost.currency": "Valuta",
+  "cost.currencyPlaceholder": "Valuta (t.ex. kr, €, $)",
   "cost.decimals": "Decimaler (Idag)",
   "cost.metric.delta": "Förändring",
   "cost.metric.value": "Värde",

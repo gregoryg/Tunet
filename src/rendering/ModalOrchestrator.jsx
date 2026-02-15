@@ -413,6 +413,7 @@ export default function ModalOrchestrator({
               monthEntityId={settings.monthId}
               name={name}
               iconName={iconName}
+              currency={settings.currency}
               t={t}
             />
           </ModalSuspense>

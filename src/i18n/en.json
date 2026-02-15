@@ -215,6 +215,8 @@
   "common.unknown": "Unknown",
   "common.updated": "Updated",
   "confirm.deletePage": "Are you sure you want to delete the page?",
+  "cost.currency": "Currency",
+  "cost.currencyPlaceholder": "Currency (e.g. kr, €, $)",
   "cost.decimals": "Decimals (Today)",
   "cost.metric.delta": "Delta",
   "cost.metric.value": "Value",

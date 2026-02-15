@@ -3,6 +3,7 @@ import { Coins, X, TrendingUp, BarChart3 } from '../icons';
 import SensorHistoryGraph from '../components/charts/SensorHistoryGraph';
 import { getHistory, getStatistics } from '../services/haClient';
 import { getIconComponent } from '../icons';
+import { useHomeAssistant } from '../contexts/HomeAssistantContext';
 
 const parseNumeric = (value) => {
   const num = parseFloat(value);
@@ -123,9 +124,13 @@ export default function CostModal({
   monthEntityId,
   name,
   iconName,
-  t
+  t,
+  currency: propCurrency
 }) {
   if (!show) return null;
+
+  const { haConfig } = useHomeAssistant();
+  const currency = propCurrency || haConfig?.currency || 'kr';
 
   const translate = t || ((key) => key);
   const [source, setSource] = useState('today');
@@ -348,24 +353,24 @@ export default function CostModal({
               <TrendingUp className="w-5 h-5 text-emerald-400" />
               <div>
                 <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">{translate('cost.stats.last')}</p>
-                <p className="text-lg font-semibold text-[var(--text-primary)]">{stats.last} kr</p>
+                <p className="text-lg font-semibold text-[var(--text-primary)]">{stats.last} {currency}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="p-4 rounded-2xl popup-surface">
                 <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">{translate('cost.stats.min')}</p>
-                <p className="text-base font-semibold text-[var(--text-primary)]">{stats.min} kr</p>
+                <p className="text-base font-semibold text-[var(--text-primary)]">{stats.min} {currency}</p>
               </div>
               <div className="p-4 rounded-2xl popup-surface">
                 <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">{translate('cost.stats.max')}</p>
-                <p className="text-base font-semibold text-[var(--text-primary)]">{stats.max} kr</p>
+                <p className="text-base font-semibold text-[var(--text-primary)]">{stats.max} {currency}</p>
               </div>
             </div>
             <div className="p-4 rounded-2xl popup-surface flex items-center gap-3">
               <BarChart3 className="w-5 h-5 text-emerald-400" />
               <div>
                 <p className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">{translate('cost.stats.avg')}</p>
-                <p className="text-base font-semibold text-[var(--text-primary)]">{stats.avg} kr</p>
+                <p className="text-base font-semibold text-[var(--text-primary)]">{stats.avg} {currency}</p>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { Coins } from '../../icons';
 import { getIconComponent } from '../../icons';
+import { useHomeAssistant } from '../../contexts/HomeAssistantContext';
 
 const getEntityValue = (entity, decimals = 0) => {
   const state = entity?.state;
@@ -33,6 +34,9 @@ export default function GenericEnergyCostCard({
   onOpen,
   t
 }) {
+  const { haConfig } = useHomeAssistant();
+  const currency = settings?.currency || haConfig?.currency || 'kr';
+
   const isSmall = settings?.size === 'small';
   const todayEntity = todayEntityId ? entities[todayEntityId] : null;
   const monthEntity = monthEntityId ? entities[monthEntityId] : null;
@@ -60,7 +64,7 @@ export default function GenericEnergyCostCard({
           <div className="flex flex-col min-w-0">
             <p className="text-[var(--text-secondary)] text-xs tracking-widest uppercase font-bold opacity-60 whitespace-normal break-words leading-none mb-1.5">{name}</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-bold text-[var(--text-primary)] leading-none">{getEntityValue(todayEntity, decimals)} kr</span>
+              <span className="text-sm font-bold text-[var(--text-primary)] leading-none">{getEntityValue(todayEntity, decimals)} {currency}</span>
               <span className="text-xs text-[var(--text-secondary)]">{todayLabel}</span>
             </div>
           </div>
@@ -93,13 +97,13 @@ export default function GenericEnergyCostCard({
             <p className="text-[11px] tracking-widest font-bold uppercase opacity-60" style={{ color: 'var(--text-secondary)' }}>{todayLabel}</p>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>{getEntityValue(todayEntity, decimals)}</span>
-            <span className="text-lg text-[var(--text-secondary)]">kr</span>
+            <span className="text-lg text-[var(--text-secondary)]">{currency}</span>
           </div>
         </div>
         <div className="col-span-2 row-start-2 h-px" style={{ backgroundColor: 'var(--glass-border)' }} />
         <div className="col-start-2 row-start-3 justify-self-end text-right">
            <p className="text-[11px] tracking-widest font-bold uppercase opacity-60" style={{ color: 'var(--text-secondary)' }}>{monthLabel}</p>
-          <p className="text-2xl font-bold mt-1" style={{ color: 'var(--text-primary)' }}>{formatMonthValue(monthEntity)} kr</p>
+          <p className="text-2xl font-bold mt-1" style={{ color: 'var(--text-primary)' }}>{formatMonthValue(monthEntity)} {currency}</p>
         </div>
       </div>
     </div>

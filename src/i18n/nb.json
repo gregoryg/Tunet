@@ -329,6 +329,8 @@
   "energyCost.thisMonth": "Måned",
   "energyCost.todayLabel": "Dagens etikett",
   "energyCost.monthLabel": "Månedsetikett",
+  "cost.currency": "Valuta",
+  "cost.currencyPlaceholder": "Valuta (f.eks. kr, €, $)",
   "cost.decimals": "Desimaler (I dag)",
   "cost.view.line": "Linje",
   "cost.view.bars": "Stolper",
