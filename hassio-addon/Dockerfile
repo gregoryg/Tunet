@@ -25,8 +25,8 @@ COPY --from=builder /src/package-lock.json .
 # Install production dependencies only
 RUN npm ci --omit=dev
 
-# Copy run script from build context (hassio-addon/)
-COPY run.sh /run.sh
+# Copy run script from build context (repo root)
+COPY hassio-addon/run.sh /run.sh
 RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]
