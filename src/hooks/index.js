@@ -9,3 +9,6 @@ export { useResponsiveGrid } from './useResponsiveGrid';
 export { useEntityHelpers } from './useEntityHelpers';
 export { usePageManagement } from './usePageManagement';
 export { useDashboardEffects } from './useDashboardEffects';
+export { usePageRouting } from './usePageRouting';
+export { useCardRendering } from './useCardRendering';
+export { useAppComposition } from './useAppComposition';

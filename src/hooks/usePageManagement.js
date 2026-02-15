@@ -1,8 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 
+/** @typedef {import('../types/dashboard').UsePageManagementDeps} UsePageManagementDeps */
+/** @typedef {import('../types/dashboard').UsePageManagementResult} UsePageManagementResult */
+
 /**
  * Encapsulates page CRUD (create / createMedia / delete) and the
  * "new-page" form state (label & icon).
+ *
+ * @param {UsePageManagementDeps} deps
+ * @returns {UsePageManagementResult}
  */
 export function usePageManagement({
   pagesConfig,
@@ -124,7 +130,7 @@ export function usePageManagement({
       if (listName === 'header') {
         newConfig.header = (newConfig.header || []).filter((id) => id !== cardId);
         persistConfig(newConfig);
-      } else if (newConfig[activePage]) {
+      } else if (Array.isArray(newConfig[activePage])) {
         newConfig[activePage] = newConfig[activePage].filter((id) => id !== cardId);
         persistConfig(newConfig);
       }

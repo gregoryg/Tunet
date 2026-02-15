@@ -1,6 +1,10 @@
 import { useReducer, useCallback, useMemo } from 'react';
 
+/** @typedef {import('../types/dashboard').ModalState} ModalState */
+/** @typedef {import('../types/dashboard').UseModalsResult} UseModalsResult */
+
 // All modal keys with their "closed" value (null = entity-id modals, false = boolean modals)
+/** @type {ModalState} */
 const MODAL_DEFAULTS = {
   showNordpoolModal: null,
   showCostModal: null,
@@ -40,6 +44,7 @@ const OPEN_CHECK_KEYS = [
   'showRoomModal', 'showWeatherModal', 'showCoverModal', 'showCameraModal',
 ];
 
+/** @param {ModalState} state @param {{ type: 'SET', key: keyof ModalState, value: ModalState[keyof ModalState] } | { type: 'CLOSE_ALL' }} action */
 function modalReducer(state, action) {
   switch (action.type) {
     case 'SET':
@@ -56,14 +61,16 @@ function modalReducer(state, action) {
  * Adding a new modal = one entry in MODAL_DEFAULTS (+ OPEN_CHECK_KEYS if needed).
  */
 export function useModals() {
+  /** @type {[ModalState, import('react').Dispatch<{ type: 'SET', key: keyof ModalState, value: ModalState[keyof ModalState] } | { type: 'CLOSE_ALL' }>]} */
   const [state, dispatch] = useReducer(modalReducer, MODAL_DEFAULTS);
 
   // Build a stable setter for each key (dispatch identity never changes)
   const setters = useMemo(() => {
     const result = {};
     for (const key of Object.keys(MODAL_DEFAULTS)) {
+      const modalKey = /** @type {keyof ModalState} */ (key);
       const setterName = 'set' + key[0].toUpperCase() + key.slice(1);
-      result[setterName] = (value) => dispatch({ type: 'SET', key, value });
+      result[setterName] = (value) => dispatch({ type: 'SET', key: modalKey, value });
     }
     return result;
   }, []);
@@ -78,5 +85,5 @@ export function useModals() {
     [],
   );
 
-  return { ...state, ...setters, hasOpenModal, closeAllModals };
+  return /** @type {UseModalsResult} */ ({ ...state, ...setters, hasOpenModal, closeAllModals });
 }

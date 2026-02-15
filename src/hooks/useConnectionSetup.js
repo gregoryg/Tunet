@@ -3,18 +3,14 @@ import { createConnection, createLongLivedTokenAuth, getAuth } from 'home-assist
 import { validateUrl } from '../config/onboarding';
 import { saveTokens, loadTokens, clearOAuthTokens, hasOAuthTokens } from '../services/oauthStorage';
 
+/** @typedef {import('../types/dashboard').UseConnectionSetupDeps} UseConnectionSetupDeps */
+/** @typedef {import('../types/dashboard').UseConnectionSetupResult} UseConnectionSetupResult */
+
 /**
  * Centralises connection-testing, OAuth login/logout and onboarding-step state.
  *
- * @param {object}   deps
- * @param {object}   deps.config
- * @param {function} deps.setConfig
- * @param {boolean}  deps.connected
- * @param {boolean}  deps.showOnboarding
- * @param {function} deps.setShowOnboarding
- * @param {boolean}  deps.showConfigModal
- * @param {function} deps.setShowConfigModal
- * @param {function} deps.t
+ * @param {UseConnectionSetupDeps} deps
+ * @returns {UseConnectionSetupResult}
  */
 export function useConnectionSetup({
   config,

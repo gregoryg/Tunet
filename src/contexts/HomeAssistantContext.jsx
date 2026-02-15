@@ -2,8 +2,14 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback } f
 import { createConnection, createLongLivedTokenAuth, subscribeEntities, getAuth } from 'home-assistant-js-websocket';
 import { saveTokens, loadTokens, clearOAuthTokens, hasOAuthTokens } from '../services/oauthStorage';
 
+/** @typedef {import('../types/dashboard').EntityMap} EntityMap */
+/** @typedef {import('../types/dashboard').HomeAssistantContextValue} HomeAssistantContextValue */
+/** @typedef {import('../types/dashboard').HomeAssistantProviderProps} HomeAssistantProviderProps */
+
+/** @type {import('react').Context<HomeAssistantContextValue | null>} */
 const HomeAssistantContext = createContext(null);
 
+/** @returns {HomeAssistantContextValue} */
 export const useHomeAssistant = () => {
   const context = useContext(HomeAssistantContext);
   if (!context) {
@@ -17,6 +23,7 @@ export const useHomeAssistant = () => {
  * React render per animation frame, preventing full-tree re-renders on
  * every WebSocket message.
  */
+/** @returns {[EntityMap, (updatedEntities: EntityMap) => void]} */
 function useThrottledEntities() {
   const [entities, setEntities] = useState({});
   const pendingRef = useRef(null);
@@ -44,6 +51,7 @@ function useThrottledEntities() {
   return [entities, setEntitiesThrottled];
 }
 
+/** @param {HomeAssistantProviderProps} props */
 export const HomeAssistantProvider = ({ children, config }) => {
   const [entities, setEntities] = useThrottledEntities();
   const [connected, setConnected] = useState(false);
@@ -55,6 +63,30 @@ export const HomeAssistantProvider = ({ children, config }) => {
   const [haUser, setHaUser] = useState(null);
   const [haConfig, setHaConfig] = useState(null);
   const authRef = useRef(null);
+  const connectionRef = useRef(null);
+  const unsubscribeEntitiesRef = useRef(null);
+  const connectAttemptRef = useRef(0);
+
+  const cleanupConnection = useCallback((closeConnection = true) => {
+    if (typeof unsubscribeEntitiesRef.current === 'function') {
+      try {
+        unsubscribeEntitiesRef.current();
+      } catch (err) {
+        console.warn('[HA] Failed to unsubscribe entities:', err);
+      }
+      unsubscribeEntitiesRef.current = null;
+    }
+
+    if (closeConnection && connectionRef.current) {
+      try {
+        connectionRef.current.close();
+      } catch (err) {
+        console.warn('[HA] Failed to close connection:', err);
+      }
+      connectionRef.current = null;
+    }
+    setConn(null);
+  }, []);
 
   // Connect to Home Assistant
   useEffect(() => {
@@ -63,28 +95,41 @@ export const HomeAssistantProvider = ({ children, config }) => {
     const hasOAuth = hasOAuthTokens();
     const isOAuthCallback = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('auth_callback');
 
-    if (!config.url) return;
+    if (!config.url) {
+      cleanupConnection();
+      setConnected(false);
+      return;
+    }
 
     // For token mode, require token
     if (!isOAuth && !hasToken) {
+      cleanupConnection();
       if (connected) setConnected(false);
       return;
     }
     // For oauth mode, require stored tokens OR an active callback in the URL
     if (isOAuth && !hasOAuth && !isOAuthCallback && !config.isIngress) {
+      cleanupConnection();
       if (connected) setConnected(false);
       return;
     }
 
+    const attemptId = connectAttemptRef.current + 1;
+    connectAttemptRef.current = attemptId;
+
     let connection;
     let cancelled = false;
+    const isCurrentAttempt = () => !cancelled && connectAttemptRef.current === attemptId;
+
+    setConnected(false);
+    cleanupConnection();
     setOauthExpired(false);
 
     /** Fetch the authenticated HA user after connecting */
     async function fetchCurrentUser(connInstance) {
       try {
         const user = await connInstance.sendMessagePromise({ type: 'auth/current_user' });
-        if (!cancelled && user) {
+        if (isCurrentAttempt() && user) {
           setHaUser({ id: user.id, name: user.name, is_owner: user.is_owner, is_admin: user.is_admin });
         }
       } catch (err) {
@@ -96,7 +141,7 @@ export const HomeAssistantProvider = ({ children, config }) => {
     async function fetchHaConfig(connInstance) {
       try {
         const conf = await connInstance.sendMessagePromise({ type: 'config/core' });
-        if (!cancelled && conf) {
+        if (isCurrentAttempt() && conf) {
           setHaConfig(conf);
         }
       } catch (err) {
@@ -123,11 +168,12 @@ export const HomeAssistantProvider = ({ children, config }) => {
       const auth = createLongLivedTokenAuth(cleanUrl, config.token);
       const connInstance = await createConnection({ auth });
       fetchHaConfig(connInstance);
-      if (cancelled) { 
+      if (!isCurrentAttempt()) {
         connInstance.close(); 
         return null; 
       }
       connection = connInstance;
+      connectionRef.current = connInstance;
       authRef.current = auth;
       setConn(connInstance);
       setConnected(true);
@@ -135,9 +181,10 @@ export const HomeAssistantProvider = ({ children, config }) => {
       setActiveUrl(url);
       persistConfig(url);
       fetchCurrentUser(connInstance);
-      subscribeEntities(connInstance, (updatedEntities) => { 
-        if (!cancelled) setEntities(updatedEntities); 
+      const unsub = subscribeEntities(connInstance, (updatedEntities) => {
+        if (isCurrentAttempt()) setEntities(updatedEntities);
       });
+      unsubscribeEntitiesRef.current = typeof unsub === 'function' ? unsub : null;
       return connInstance;
     }
 
@@ -157,11 +204,12 @@ export const HomeAssistantProvider = ({ children, config }) => {
         window.history.replaceState(null, '', window.location.pathname);
       }
       const connInstance = await createConnection({ auth });
-      if (cancelled) {
+      if (!isCurrentAttempt()) {
         connInstance.close();
         return null;
       }
       connection = connInstance;
+      connectionRef.current = connInstance;
       authRef.current = auth;
       setConn(connInstance);
       setConnected(true);
@@ -170,9 +218,10 @@ export const HomeAssistantProvider = ({ children, config }) => {
       persistConfig(url);
       fetchHaConfig(connInstance);
       fetchCurrentUser(connInstance);
-      subscribeEntities(connInstance, (updatedEntities) => {
-        if (!cancelled) setEntities(updatedEntities);
+      const unsub = subscribeEntities(connInstance, (updatedEntities) => {
+        if (isCurrentAttempt()) setEntities(updatedEntities);
       });
+      unsubscribeEntitiesRef.current = typeof unsub === 'function' ? unsub : null;
       return connInstance;
     }
 
@@ -190,7 +239,7 @@ export const HomeAssistantProvider = ({ children, config }) => {
         // For OAuth, if auth is invalid, clear tokens and flag expiry
         if (isOAuth && err?.message?.includes?.('INVALID_AUTH')) {
           clearOAuthTokens();
-          if (!cancelled) {
+          if (isCurrentAttempt()) {
             setConnected(false);
             setHaUnavailable(true);
             setOauthExpired(true);
@@ -204,11 +253,11 @@ export const HomeAssistantProvider = ({ children, config }) => {
             await connectWithToken(config.fallbackUrl);
             return;
           } catch (e) {
-            if (cancelled) return;
+            if (!isCurrentAttempt()) return;
             console.error('Fallback connection failed:', e);
           }
         }
-        if (!cancelled) {
+        if (isCurrentAttempt()) {
           setConnected(false);
           setHaUnavailable(true);
         }
@@ -216,11 +265,16 @@ export const HomeAssistantProvider = ({ children, config }) => {
     }
 
     connect();
-    return () => { 
-      cancelled = true; 
-      if (connection) connection.close(); 
+    return () => {
+      cancelled = true;
+      if (connection) {
+        try {
+          connection.close();
+        } catch {}
+      }
+      cleanupConnection();
     };
-  }, [config.url, config.fallbackUrl, config.token, config.authMethod]);
+  }, [config.url, config.fallbackUrl, config.token, config.authMethod, config.isIngress, cleanupConnection]);
 
   // Handle connection events
   useEffect(() => {
@@ -228,10 +282,16 @@ export const HomeAssistantProvider = ({ children, config }) => {
     let cancelled = false;
 
     const handleReady = () => {
-      if (!cancelled) setHaUnavailable(false);
+      if (!cancelled) {
+        setConnected(true);
+        setHaUnavailable(false);
+      }
     };
     const handleDisconnected = () => {
-      if (!cancelled) setHaUnavailable(true);
+      if (!cancelled) {
+        setConnected(false);
+        setHaUnavailable(true);
+      }
     };
 
     conn.addEventListener?.('ready', handleReady);
@@ -254,6 +314,7 @@ export const HomeAssistantProvider = ({ children, config }) => {
     return () => clearTimeout(timer);
   }, [haUnavailable]);
 
+  /** @type {HomeAssistantContextValue} */
   const value = {
     entities,
     connected,

@@ -1,23 +1,14 @@
 import { useState, useEffect } from 'react';
 import { handleAddSelected } from '../services';
 
+/** @typedef {import('../types/dashboard').UseAddCardDeps} UseAddCardDeps */
+/** @typedef {import('../types/dashboard').UseAddCardResult} UseAddCardResult */
+
 /**
  * Manages all "Add Card" dialog state, selection resets, type inference and submission.
  *
- * @param {object}   deps
- * @param {boolean}  deps.showAddCardModal   – whether the add-card modal is open
- * @param {string}   deps.activePage
- * @param {function} deps.isMediaPage
- * @param {object}   deps.pagesConfig
- * @param {function} deps.persistConfig
- * @param {object}   deps.cardSettings
- * @param {function} deps.persistCardSettings
- * @param {function} deps.getCardSettingsKey
- * @param {function} deps.saveCardSetting
- * @param {function} deps.setShowAddCardModal
- * @param {function} deps.setShowEditCardModal
- * @param {function} deps.setEditCardSettingsKey
- * @param {function} deps.t
+ * @param {UseAddCardDeps} deps
+ * @returns {UseAddCardResult}
  */
 export function useAddCard({
   showAddCardModal,

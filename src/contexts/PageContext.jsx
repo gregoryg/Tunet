@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { DEFAULT_PAGES_CONFIG } from '../config/defaults';
 import { MAX_GRID_COLUMNS, MIN_GRID_COLUMNS } from '../hooks/useResponsiveGrid';
 
+/** @typedef {import('../types/dashboard').PageContextValue} PageContextValue */
+/** @typedef {import('../types/dashboard').PageProviderProps} PageProviderProps */
+
 const readJSON = (key, fallback) => {
   try {
     const raw = localStorage.getItem(key);
@@ -79,8 +82,10 @@ function loadPagesConfig() {
   return parsed;
 }
 
+/** @type {import('react').Context<PageContextValue | null>} */
 const PageContext = createContext(null);
 
+/** @returns {PageContextValue} */
 export const usePages = () => {
   const context = useContext(PageContext);
   if (!context) {
@@ -89,6 +94,7 @@ export const usePages = () => {
   return context;
 };
 
+/** @param {PageProviderProps} props */
 export const PageProvider = ({ children }) => {
   const [pagesConfig, setPagesConfig] = useState(loadPagesConfig);
   const [cardSettings, setCardSettings] = useState({});
@@ -169,6 +175,10 @@ export const PageProvider = ({ children }) => {
     const cardSettingsSaved = readJSON('tunet_card_settings', null);
     if (cardSettingsSaved) setCardSettings(cardSettingsSaved);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--card-border-radius', `${cardBorderRadius}px`);
+  }, [cardBorderRadius]);
 
   const saveCustomName = (id, name) => {
     const newNames = { ...customNames, [id]: name };
@@ -275,6 +285,7 @@ export const PageProvider = ({ children }) => {
     writeJSON('tunet_pages_config', newConfig);
   };
 
+  /** @type {PageContextValue} */
   const value = {
     pagesConfig,
     setPagesConfig,
@@ -350,7 +361,6 @@ export const PageProvider = ({ children }) => {
     cardBorderRadius,
     setCardBorderRadius: (val) => {
       setCardBorderRadius(val);
-      document.documentElement.style.setProperty('--card-border-radius', `${val}px`);
       try {
         localStorage.setItem('tunet_card_border_radius', String(val));
       } catch (error) {

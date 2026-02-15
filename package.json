@@ -18,6 +18,7 @@
     "preview": "vite preview",
     "lint": "eslint src",
     "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "i18n:check": "vitest run src/__tests__/i18n.test.js",
     "test:watch": "vitest",
     "release:prep": "node scripts/release.mjs prep",
@@ -56,6 +57,7 @@
     "jsdom": "^28.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.2",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
   }

@@ -1,0 +1,267 @@
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { getCardGridSpan as _getCardGridSpan, buildGridLayout as _buildGridLayout } from '../utils/gridLayout';
+import { createDragAndDropHandlers } from '../utils/dragAndDrop';
+import { dispatchCardRender } from '../rendering/cardRenderers';
+import EditOverlay from '../components/ui/EditOverlay';
+
+export function useCardRendering({
+  editMode,
+  pagesConfig,
+  setPagesConfig,
+  persistConfig,
+  activePage,
+  hiddenCards,
+  isCardHiddenByLogic,
+  gridColCount,
+  cardSettings,
+  getCardSettingsKey,
+  entities,
+  conn,
+  customNames,
+  customIcons,
+  getA,
+  getS,
+  getEntityImageUrl,
+  callService,
+  isMediaActive,
+  saveCardSetting,
+  language,
+  isMobile,
+  t,
+  optimisticLightBrightness,
+  setOptimisticLightBrightness,
+  tempHistoryById,
+  setShowLightModal,
+  setShowSensorInfoModal,
+  setActiveClimateEntityModal,
+  setShowCostModal,
+  setActiveVacuumId,
+  setShowVacuumModal,
+  setShowAndroidTVModal,
+  setActiveCarModal,
+  setShowWeatherModal,
+  setShowNordpoolModal,
+  setShowCalendarModal,
+  setShowTodoModal,
+  setShowRoomModal,
+  setShowEditCardModal,
+  setEditCardSettingsKey,
+  setShowCameraModal,
+  setActiveMediaId,
+  setActiveMediaGroupKey,
+  setActiveMediaGroupIds,
+  setActiveMediaModal,
+  toggleCardVisibility,
+  removeCard,
+  isCardRemovable,
+}) {
+  const dragSourceRef = useRef(null);
+  const touchTargetRef = useRef(null);
+  const [touchTargetId, setTouchTargetId] = useState(null);
+  const [touchPath, setTouchPath] = useState(null);
+  const touchSwapCooldownRef = useRef(0);
+  const pointerDragRef = useRef(false);
+  const ignoreTouchRef = useRef(false);
+  const [draggingId, setDraggingId] = useState(null);
+
+  const getCardGridSpan = useCallback((cardId) => {
+    return _getCardGridSpan(cardId, getCardSettingsKey, cardSettings, activePage);
+  }, [getCardSettingsKey, cardSettings, activePage]);
+
+  const moveCardInArray = useCallback((cardId, direction) => {
+    const newConfig = { ...pagesConfig };
+    const pageCards = newConfig[activePage];
+    const currentIndex = pageCards.indexOf(cardId);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= pageCards.length) return;
+
+    [pageCards[currentIndex], pageCards[newIndex]] = [pageCards[newIndex], pageCards[currentIndex]];
+    persistConfig(newConfig);
+  }, [pagesConfig, activePage, persistConfig]);
+
+  const gridLayout = useMemo(() => {
+    const ids = pagesConfig[activePage] || [];
+    const visibleIds = editMode ? ids : ids.filter(id => !(hiddenCards.includes(id) || isCardHiddenByLogic(id)));
+    return _buildGridLayout(visibleIds, gridColCount, getCardGridSpan);
+  }, [pagesConfig, activePage, gridColCount, hiddenCards, editMode, isCardHiddenByLogic, getCardGridSpan]);
+
+  const dragAndDrop = createDragAndDropHandlers({
+    editMode,
+    pagesConfig,
+    setPagesConfig,
+    persistConfig,
+    activePage,
+    dragSourceRef,
+    touchTargetRef,
+    touchSwapCooldownRef,
+    touchPath,
+    setTouchPath,
+    touchTargetId,
+    setTouchTargetId,
+    setDraggingId,
+    ignoreTouchRef,
+  });
+
+  const renderCard = useCallback((cardId, index, colIndex) => {
+    const isHidden = hiddenCards.includes(cardId) || isCardHiddenByLogic(cardId);
+    if (isHidden && !editMode) return null;
+    const isDragging = draggingId === cardId;
+
+    const {
+      getDragProps,
+      getCardStyle,
+      startTouchDrag,
+      updateTouchDrag,
+      performTouchDrop,
+      resetDragState,
+    } = dragAndDrop;
+
+    const dragProps = getDragProps({ cardId, index, colIndex });
+    const cardStyle = getCardStyle({ cardId, isHidden, isDragging });
+    const settingsKey = getCardSettingsKey(cardId);
+
+    const getControls = (targetId) => {
+      if (!editMode) return null;
+      const editId = targetId || cardId;
+      const controlsHidden = hiddenCards.includes(cardId) || isCardHiddenByLogic(cardId);
+      const settings = cardSettings[settingsKey] || cardSettings[editId] || {};
+
+      return (
+        <EditOverlay
+          cardId={cardId}
+          editId={editId}
+          settingsKey={settingsKey}
+          isHidden={controlsHidden}
+          currentSize={cardSettings[settingsKey]?.size || 'large'}
+          settings={settings}
+          canRemove={isCardRemovable(cardId)}
+          onMoveLeft={() => moveCardInArray(cardId, 'left')}
+          onMoveRight={() => moveCardInArray(cardId, 'right')}
+          onEdit={() => { setShowEditCardModal(editId); setEditCardSettingsKey(settingsKey); }}
+          onToggleVisibility={() => toggleCardVisibility(cardId)}
+          onSaveSize={(size) => saveCardSetting(settingsKey, 'size', size)}
+          onRemove={() => removeCard(cardId)}
+          dragHandleProps={{
+            onContextMenu: (e) => e.preventDefault(),
+            onPointerDown: (e) => {
+              if (!editMode || e.pointerType !== 'touch') return;
+              e.preventDefault();
+              e.currentTarget.setPointerCapture(e.pointerId);
+              pointerDragRef.current = true;
+              ignoreTouchRef.current = true;
+              startTouchDrag(cardId, index, colIndex, e.clientX, e.clientY);
+            },
+            onPointerMove: (e) => {
+              if (!editMode || e.pointerType !== 'touch') return;
+              if (!pointerDragRef.current) return;
+              e.preventDefault();
+              updateTouchDrag(e.clientX, e.clientY);
+            },
+            onPointerUp: (e) => {
+              if (!editMode || e.pointerType !== 'touch') return;
+              if (!pointerDragRef.current) return;
+              e.preventDefault();
+              pointerDragRef.current = false;
+              ignoreTouchRef.current = false;
+              performTouchDrop(e.clientX, e.clientY);
+              resetDragState();
+            },
+            onPointerCancel: (e) => {
+              if (!editMode || e.pointerType !== 'touch') return;
+              if (!pointerDragRef.current) return;
+              e.preventDefault();
+              pointerDragRef.current = false;
+              ignoreTouchRef.current = false;
+              const x = touchPath?.x ?? e.clientX;
+              const y = touchPath?.y ?? e.clientY;
+              performTouchDrop(x, y);
+              resetDragState();
+            },
+          }}
+          t={t}
+        />
+      );
+    };
+
+    const ctx = {
+      entities, editMode, conn, cardSettings, customNames, customIcons,
+      getA, getS, getEntityImageUrl, callService, isMediaActive,
+      saveCardSetting, language, isMobile, activePage, t,
+      optimisticLightBrightness, setOptimisticLightBrightness,
+      tempHistoryById, isCardHiddenByLogic,
+      setShowLightModal, setShowSensorInfoModal, setActiveClimateEntityModal,
+      setShowCostModal, setActiveVacuumId, setShowVacuumModal,
+      setShowAndroidTVModal, setActiveCarModal, setShowWeatherModal,
+      setShowNordpoolModal, setShowCalendarModal, setShowTodoModal,
+      setShowRoomModal, setShowEditCardModal, setEditCardSettingsKey,
+      setShowCameraModal,
+      openMediaModal: (mpId, groupKey, groupIds) => {
+        setActiveMediaId(mpId);
+        setActiveMediaGroupKey(groupKey);
+        setActiveMediaGroupIds(groupIds);
+        setActiveMediaModal('media');
+      },
+    };
+
+    return dispatchCardRender(cardId, dragProps, getControls, cardStyle, settingsKey, ctx);
+  }, [
+    hiddenCards,
+    isCardHiddenByLogic,
+    editMode,
+    draggingId,
+    dragAndDrop,
+    getCardSettingsKey,
+    cardSettings,
+    isCardRemovable,
+    moveCardInArray,
+    setShowEditCardModal,
+    setEditCardSettingsKey,
+    toggleCardVisibility,
+    saveCardSetting,
+    removeCard,
+    t,
+    touchPath,
+    entities,
+    conn,
+    customNames,
+    customIcons,
+    getA,
+    getS,
+    getEntityImageUrl,
+    callService,
+    isMediaActive,
+    language,
+    isMobile,
+    activePage,
+    optimisticLightBrightness,
+    setOptimisticLightBrightness,
+    tempHistoryById,
+    setShowLightModal,
+    setShowSensorInfoModal,
+    setActiveClimateEntityModal,
+    setShowCostModal,
+    setActiveVacuumId,
+    setShowVacuumModal,
+    setShowAndroidTVModal,
+    setActiveCarModal,
+    setShowWeatherModal,
+    setShowNordpoolModal,
+    setShowCalendarModal,
+    setShowTodoModal,
+    setShowRoomModal,
+    setShowCameraModal,
+    setActiveMediaId,
+    setActiveMediaGroupKey,
+    setActiveMediaGroupIds,
+    setActiveMediaModal,
+  ]);
+
+  return {
+    renderCard,
+    gridLayout,
+    draggingId,
+    touchPath,
+  };
+}

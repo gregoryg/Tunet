@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { MOBILE_BREAKPOINT } from '../config/constants';
 
+/** @typedef {import('../types/dashboard').ResponsiveGridResult} ResponsiveGridResult */
+
 export const MIN_GRID_COLUMNS = 1;
 export const MAX_GRID_COLUMNS = 5;
 
@@ -23,7 +25,7 @@ export function getAutoGridColumnsForWidth(width) {
  *
  * @param {number} gridColumns – user-chosen max column count
  * @param {boolean} dynamicColumns – if true, auto-adjust columns by width/orientation
- * @returns {{ gridColCount, isCompactCards, isMobile }}
+ * @returns {ResponsiveGridResult}
  */
 export function useResponsiveGrid(gridColumns, dynamicColumns = false) {
   const [gridColCount, setGridColCount] = useState(1);

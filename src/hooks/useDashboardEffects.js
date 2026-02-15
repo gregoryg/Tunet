@@ -5,6 +5,9 @@ import {
   INITIAL_FETCH_DELAY,
 } from '../config/constants';
 
+/** @typedef {import('../types/dashboard').UseDashboardEffectsDeps} UseDashboardEffectsDeps */
+/** @typedef {import('../types/dashboard').UseDashboardEffectsResult} UseDashboardEffectsResult */
+
 /**
  * Miscellaneous App-level side-effects that don't belong in a specific domain:
  *   – `now` clock tick
@@ -66,6 +69,7 @@ export function useDashboardEffects({
   useEffect(() => {
     document.title = resolvedHeaderTitle;
 
+    /** @type {HTMLLinkElement | null} */
     let link = document.querySelector("link[rel~='icon']");
     if (!link) {
       link = document.createElement('link');
@@ -76,6 +80,7 @@ export function useDashboardEffects({
     link.href =
       "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>";
 
+    /** @type {HTMLMetaElement | null} */
     let meta = document.querySelector("meta[name='viewport']");
     if (!meta) {
       meta = document.createElement('meta');
@@ -105,10 +110,10 @@ export function useDashboardEffects({
     };
   }, [inactivityTimeout]);
 
-  return {
+  return /** @type {UseDashboardEffectsResult} */ ({
     now,
     mediaTick,
     optimisticLightBrightness,
     setOptimisticLightBrightness,
-  };
+  });
 }

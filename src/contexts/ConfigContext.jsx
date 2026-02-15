@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { themes } from '../config/themes';
 import { DEFAULT_LANGUAGE, LEGACY_NN_MIGRATION_FLAG, normalizeLanguage } from '../i18n';
 
+/** @typedef {import('../types/dashboard').ConfigContextValue} ConfigContextValue */
+/** @typedef {import('../types/dashboard').ConfigProviderProps} ConfigProviderProps */
+
 export const GRADIENT_PRESETS = {
   midnight: { label: 'Midnight', from: '#0f172a', to: '#020617' },
   ocean: { label: 'Ocean', from: '#0c4a6e', to: '#164e63' },
@@ -11,8 +14,10 @@ export const GRADIENT_PRESETS = {
   rose: { label: 'Rose', from: '#881337', to: '#4a044e' },
 };
 
+/** @type {import('react').Context<ConfigContextValue | null>} */
 const ConfigContext = createContext(null);
 
+/** @returns {ConfigContextValue} */
 export const useConfig = () => {
   const context = useContext(ConfigContext);
   if (!context) {
@@ -21,6 +26,7 @@ export const useConfig = () => {
   return context;
 };
 
+/** @param {ConfigProviderProps} props */
 export const ConfigProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -40,7 +46,7 @@ export const ConfigProvider = ({ children }) => {
       const rawLanguage = localStorage.getItem('tunet_language') || DEFAULT_LANGUAGE;
       const migrationDone = localStorage.getItem(LEGACY_NN_MIGRATION_FLAG) === '1';
       const shouldMigrateLegacyNn = rawLanguage === 'nn' && !migrationDone;
-      const normalizedLanguage = normalizeLanguage(rawLanguage, { migrateLegacyNn: shouldMigrateLegacyNn });
+      const normalizedLanguage = shouldMigrateLegacyNn ? 'nb' : normalizeLanguage(rawLanguage);
 
       if (shouldMigrateLegacyNn) {
         localStorage.setItem('tunet_language', normalizedLanguage);
@@ -156,6 +162,7 @@ export const ConfigProvider = ({ children }) => {
     document.documentElement.dataset.theme = themeKey;
     document.documentElement.style.colorScheme = themeKey === 'light' ? 'light' : 'dark';
     
+    /** @type {HTMLMetaElement | null} */
     let metaThemeColor = document.querySelector("meta[name='theme-color']");
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
@@ -297,10 +304,10 @@ export const ConfigProvider = ({ children }) => {
     try { localStorage.setItem('tunet_bg_image', bgImage); } catch {}
   }, [bgImage]);
   useEffect(() => {
-    try { localStorage.setItem('tunet_card_transparency', cardTransparency); } catch {}
+    try { localStorage.setItem('tunet_card_transparency', String(cardTransparency)); } catch {}
   }, [cardTransparency]);
   useEffect(() => {
-    try { localStorage.setItem('tunet_card_border_opacity', cardBorderOpacity); } catch {}
+    try { localStorage.setItem('tunet_card_border_opacity', String(cardBorderOpacity)); } catch {}
   }, [cardBorderOpacity]);
 
   // Save language to localStorage
@@ -322,6 +329,7 @@ export const ConfigProvider = ({ children }) => {
     setCurrentTheme(themeKeys[nextIndex]);
   };
 
+  /** @type {ConfigContextValue} */
   const value = {
     currentTheme,
     setCurrentTheme,
