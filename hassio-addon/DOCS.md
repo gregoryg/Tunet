@@ -32,6 +32,9 @@ real-time entity updates, and drag-and-drop customisation.
 3. Restart the add-on after update.
 4. Hard-refresh browser (`Ctrl+Shift+R`) if old UI is still cached.
 
+Tunet add-on updates now use prebuilt GHCR images per architecture.
+This improves update reliability and gives more accurate progress/status in Home Assistant.
+
 ### If update is not shown yet
 
 - Open your add-on repository settings and click **Reload**.

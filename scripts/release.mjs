@@ -9,7 +9,6 @@ const paths = {
   changelog: path.join(root, 'CHANGELOG.md'),
   addonConfig: path.join(root, 'hassio-addon', 'config.yaml'),
   addonChangelog: path.join(root, 'hassio-addon', 'CHANGELOG.md'),
-  addonDockerfile: path.join(root, 'hassio-addon', 'Dockerfile'),
 };
 
 function usage() {
@@ -80,13 +79,12 @@ function upsertMainChangelogEntry(changelog, appVersion, releaseDate) {
 }
 
 async function runCheck() {
-  const [pkg, lock, mainChangelog, addonConfig, addonChangelog, addonDockerfile] = await Promise.all([
+  const [pkg, lock, mainChangelog, addonConfig, addonChangelog] = await Promise.all([
     readJson(paths.pkg),
     readJson(paths.lock),
     readFile(paths.changelog, 'utf8'),
     readFile(paths.addonConfig, 'utf8'),
     readFile(paths.addonChangelog, 'utf8'),
-    readFile(paths.addonDockerfile, 'utf8'),
   ]);
 
   const errors = [];
@@ -108,8 +106,8 @@ async function runCheck() {
     }
   }
 
-  if (!addonDockerfile.includes('--branch main')) {
-    errors.push('hassio-addon/Dockerfile should build from --branch main for predictable updates.');
+  if (!addonConfig.includes('image:')) {
+    errors.push('hassio-addon/config.yaml is missing image: for prebuilt add-on distribution.');
   }
 
   if (errors.length) {

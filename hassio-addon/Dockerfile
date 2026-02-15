@@ -1,12 +1,12 @@
 ARG BUILD_FROM
 # ── Stage 1: Build from source ────────────────────────────────────────
 FROM node:20-alpine AS builder
-# Single RUN to prevent ALL Docker layer caching issues
-RUN apk add --no-cache git \
- && git clone --depth 1 --branch main https://github.com/oyvhov/Tunet.git /src \
- && cd /src \
- && npm ci \
- && npm run build
+
+WORKDIR /src
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN SKIP_POSTBUILD=1 npm run build
 
 # ── Stage 2: Production image ────────────────────────────────────────
 ARG BUILD_FROM
