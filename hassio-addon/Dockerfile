@@ -1,12 +1,12 @@
 ARG BUILD_FROM
 # ── Stage 1: Build from source ────────────────────────────────────────
-FROM node:20 AS builder
-
-WORKDIR /src
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN SKIP_POSTBUILD=1 npm run build
+FROM node:20-alpine AS builder
+# Single RUN to prevent ALL Docker layer caching issues
+RUN apk add --no-cache git \
+ && git clone --depth 1 --branch main https://github.com/oyvhov/Tunet.git /src \
+ && cd /src \
+ && npm ci \
+ && npm run build
 
 # ── Stage 2: Production image ────────────────────────────────────────
 ARG BUILD_FROM
@@ -25,8 +25,8 @@ COPY --from=builder /src/package-lock.json .
 # Install production dependencies only
 RUN npm ci --omit=dev
 
-# Copy run script from build context (repo root)
-COPY hassio-addon/run.sh /run.sh
+# Copy run script from build context (hassio-addon/)
+COPY run.sh /run.sh
 RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]

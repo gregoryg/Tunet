@@ -97,18 +97,6 @@ npm run release
 
 The `release:check` step is also enforced in CI on `main` PRs/pushes.
 
-4. Publish and push a release tag (for prebuilt Home Assistant add-on images to GHCR):
-
-```bash
-git tag -a v1.0.0-beta.16 -m "Release v1.0.0-beta.16"
-git push origin main --tags
-```
-
-The `addon-prebuilt` workflow publishes:
-- `ghcr.io/oyvhov/aarch64-addon-tunet:<addonVersion>`
-- `ghcr.io/oyvhov/amd64-addon-tunet:<addonVersion>`
-- `ghcr.io/oyvhov/armv7-addon-tunet:<addonVersion>`
-
 ## Translation Workflow
 
 - English (`src/i18n/en.json`) is the base/source-of-truth.

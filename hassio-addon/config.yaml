@@ -3,7 +3,6 @@ description: "A modern, responsive dashboard for Home Assistant"
 version: "1.0.14"
 slug: "tunet"
 url: "https://github.com/oyvhov/Tunet"
-image: "ghcr.io/oyvhov/{arch}-addon-tunet"
 init: false
 startup: application
 arch:
