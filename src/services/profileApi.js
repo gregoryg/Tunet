@@ -7,9 +7,14 @@
 const API_BASE = './api';
 
 async function request(path, options = {}) {
+  const mergedHeaders = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  };
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options,
+    headers: mergedHeaders,
   });
 
   if (!res.ok) {
