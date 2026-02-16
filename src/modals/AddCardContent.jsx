@@ -12,6 +12,7 @@ import {
   Home,
   Lightbulb,
   ListChecks,
+  Minus,
   Music,
   Plus,
   Search,
@@ -158,6 +159,8 @@ export default function AddCardContent({
   setSelectedNordpoolId,
   nordpoolDecimals,
   setNordpoolDecimals,
+  selectedSpacerVariant,
+  setSelectedSpacerVariant,
   onAddSelected,
   onAddRoom,
   conn,
@@ -167,6 +170,13 @@ export default function AddCardContent({
 }) {
   const [selectedRoomArea, setSelectedRoomArea] = useState(null);
   const [selectedRoomEntities, setSelectedRoomEntities] = useState([]);
+  const [localSpacerVariant, setLocalSpacerVariant] = useState(selectedSpacerVariant || 'divider');
+
+  useEffect(() => {
+    if (addCardType === 'spacer') {
+      setLocalSpacerVariant(selectedSpacerVariant || 'divider');
+    }
+  }, [addCardType, selectedSpacerVariant]);
 
   const getLabel = (key, fallback) => {
     const value = t ? t(key) : key;
@@ -318,6 +328,44 @@ export default function AddCardContent({
         className="px-6 py-3 rounded-2xl bg-blue-500 text-white font-bold uppercase tracking-widest hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
       >
         {buttonLabel}
+      </button>
+    </div>
+  );
+
+  const renderSpacerSection = () => (
+    <div className="flex flex-col items-center justify-center py-10 text-center space-y-4">
+      <div className="p-4 rounded-full bg-blue-500/10 text-blue-400">
+        <Minus className="w-8 h-8" />
+      </div>
+      <p className="text-gray-400 max-w-xs text-sm">
+        {t('addCard.spacerDescription') || 'Add a spacer or divider card. You can switch between spacer and divider in the edit settings.'}
+      </p>
+      <div className="w-full max-w-sm space-y-2">
+        <p className="text-xs uppercase font-bold text-gray-500">{t('addCard.spacer.selectVariant') || 'Select variant'}</p>
+        <div className="flex gap-2">
+          {[
+            { key: 'spacer', label: t('addCard.spacer.spacer') || 'Spacer' },
+            { key: 'divider', label: t('addCard.spacer.divider') || 'Divider' },
+          ].map((variant) => (
+            <button
+              key={variant.key}
+              type="button"
+              onClick={() => {
+                setLocalSpacerVariant(variant.key);
+                setSelectedSpacerVariant(variant.key);
+              }}
+              className={`flex-1 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border transition-colors ${localSpacerVariant === variant.key ? 'bg-blue-500 text-white border-blue-500' : 'popup-surface popup-surface-hover text-[var(--text-secondary)]'}`}
+            >
+              {variant.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button
+        onClick={() => onAddSelected({ spacerVariant: localSpacerVariant })}
+        className="px-6 py-3 rounded-2xl bg-blue-500 text-white font-bold uppercase tracking-widest hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
+      >
+        {t('addCard.add')}
       </button>
     </div>
   );
@@ -475,6 +523,7 @@ export default function AddCardContent({
                 <TypeButton type="todo" icon={ListChecks} label={getLabel('addCard.type.todo', 'Todo')} isActive={addCardType === 'todo'} onSelect={setAddCardType} />
                 <TypeButton type="nordpool" icon={Zap} label={t('addCard.type.nordpool')} isActive={addCardType === 'nordpool'} onSelect={setAddCardType} />
                 <TypeButton type="room" icon={Home} label={getLabel('addCard.type.room', 'Room')} isActive={addCardType === 'room'} onSelect={setAddCardType} />
+                <TypeButton type="spacer" icon={Minus} label={getLabel('addCard.type.spacer', 'Spacer')} isActive={addCardType === 'spacer'} onSelect={setAddCardType} />
               </div>
             </div>
           )}
@@ -484,6 +533,7 @@ export default function AddCardContent({
               : addCardType === 'androidtv' ? renderAndroidTVSection()
               : addCardType === 'calendar' ? renderSimpleAddSection(Calendar, t('addCard.calendarDescription') || 'Add a calendar card. You can select calendars after adding the card.', t('addCard.add'))
               : addCardType === 'todo' ? renderSimpleAddSection(ListChecks, t('addCard.todoDescription') || 'Add a to-do card. You can select which list to use after adding.', t('addCard.add'))
+              : addCardType === 'spacer' ? renderSpacerSection()
               : addCardType === 'car' ? renderSimpleAddSection(Car, t('addCard.carDescription'), t('addCard.carCard'))
               : addCardType === 'nordpool' ? renderNordpoolSection()
               : addCardType === 'room' ? (

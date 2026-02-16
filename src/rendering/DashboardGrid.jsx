@@ -81,7 +81,7 @@ export default function DashboardGrid({
       className="grid font-sans page-transition items-start"
       style={{
         gap: isMobile ? '12px' : `${gridGapV}px ${gridGapH}px`,
-        gridAutoRows: isMobile ? '82px' : '100px',
+        gridAutoRows: 'auto',
         gridTemplateColumns: `repeat(${gridColCount}, minmax(0, 1fr))`,
       }}
     >
@@ -103,27 +103,40 @@ export default function DashboardGrid({
             ? (sizeSetting === 'small' ? 1 : (sizeSetting === 'medium' ? 2 : 4))
             : placement?.span;
           const settingsKey = getCardSettingsKey(id);
+          const settings = cardSettings[settingsKey] || cardSettings[id] || {};
           const heading = cardSettings[settingsKey]?.heading;
+          const colSpan = placement?.colSpan || 1;
+          const isSpacerCard = id.startsWith('spacer_card_');
 
           if (!editMode && (hiddenCards.includes(id) || isCardHiddenByLogic(id))) return null;
 
           const cardContent = renderCard(id, index);
           if (!cardContent) return null;
 
+          const gapPx = isMobile ? 12 : gridGapV;
+          const rowPx = isMobile ? 82 : 100;
+          let cardHeight;
+          if (id.startsWith('spacer_card_') && Number.isFinite(Number(settings.heightPx)) && Number(settings.heightPx) > 0) {
+            cardHeight = Math.max(40, Math.min(420, Number(settings.heightPx)));
+          } else if (isLargeCard && sizeSetting !== 'small' && sizeSetting !== 'medium') {
+            cardHeight = (4 * rowPx) + (3 * gapPx);
+          } else {
+            cardHeight = forcedSpan * rowPx + Math.max(0, forcedSpan - 1) * gapPx;
+          }
+
           return (
             <div
               key={id}
-              className={`h-full relative ${(isCompactCards || isMobile) ? 'card-compact' : ''}`}
+              className={`relative ${(isCompactCards || isMobile) ? 'card-compact' : ''}`}
               style={{
                 gridRowStart: placement.row,
                 gridColumnStart: placement.col,
                 gridRowEnd: `span ${forcedSpan}`,
-                minHeight: isLargeCard && sizeSetting !== 'small' && sizeSetting !== 'medium'
-                  ? `${(4 * 100) + (3 * (isMobile ? 12 : gridGapV))}px`
-                  : undefined,
+                gridColumnEnd: colSpan > 1 ? `span ${colSpan}` : undefined,
+                height: `${cardHeight}px`,
               }}
             >
-              {heading && (
+              {heading && !isSpacerCard && (
                 <div className="absolute -top-4 left-2 text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--text-secondary)]">
                   {heading}
                 </div>

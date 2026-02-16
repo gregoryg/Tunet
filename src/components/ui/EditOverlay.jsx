@@ -57,46 +57,63 @@ function EditOverlay({
   dragHandleProps,
   t,
 }) {
+  const isSpacerCard = editId?.startsWith('spacer_card_');
+  const isCompactSpacer = isSpacerCard && Number(settings?.heightPx || 0) > 0 && Number(settings?.heightPx || 0) <= 56;
   const showResize = canResize(editId, settings);
   const isSmall = currentSize === 'small';
   const isTriple = TRIPLE_SIZE_PREFIXES.some(p => editId.startsWith(p));
+  const topOffsetClass = isCompactSpacer ? 'top-1' : 'top-2';
+  const sideOffsetClass = isCompactSpacer ? 'left-1' : 'left-2';
+  const rightOffsetClass = isCompactSpacer ? 'right-1' : 'right-2';
+  const gapClass = isCompactSpacer ? 'gap-1' : 'gap-2';
+  const buttonClass = isCompactSpacer
+    ? 'p-1 rounded-full text-white border border-white/20 shadow-lg bg-black/60'
+    : 'p-2 rounded-full text-white border border-white/20 shadow-lg bg-black/60';
+  const hoverButtonClass = isCompactSpacer
+    ? 'p-1 rounded-full transition-colors hover:bg-blue-500/80 text-white border border-white/20 shadow-lg bg-black/60'
+    : 'p-2 rounded-full transition-colors hover:bg-blue-500/80 text-white border border-white/20 shadow-lg bg-black/60';
+  const iconClass = isCompactSpacer ? 'w-3 h-3' : 'w-4 h-4';
+  const dragHandleClass = isCompactSpacer
+    ? 'flex items-center justify-center p-1.5 rounded-full bg-black/50 border border-white/10 text-white/80 shadow-lg pointer-events-auto'
+    : 'flex items-center justify-center p-3 rounded-full bg-black/50 border border-white/10 text-white/80 shadow-lg pointer-events-auto';
+  const dragIconClass = isCompactSpacer ? 'w-4 h-4' : 'w-5 h-5';
 
   return (
     <>
       {/* Move buttons – top left */}
-      <div className="absolute top-2 left-2 z-50 flex gap-2">
+      <div className={`absolute ${topOffsetClass} ${sideOffsetClass} z-50 flex ${gapClass}`}>
         <button
           onClick={(e) => { e.stopPropagation(); onMoveLeft(); }}
-          className="p-2 rounded-full transition-colors hover:bg-blue-500/80 text-white border border-white/20 shadow-lg bg-black/60"
+          className={hoverButtonClass}
           title={t('tooltip.moveLeft')}
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className={iconClass} />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onMoveRight(); }}
-          className="p-2 rounded-full transition-colors hover:bg-blue-500/80 text-white border border-white/20 shadow-lg bg-black/60"
+          className={hoverButtonClass}
           title={t('tooltip.moveRight')}
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className={iconClass} />
         </button>
       </div>
 
       {/* Action buttons – top right */}
-      <div className="absolute top-2 right-2 z-50 flex gap-2">
+      <div className={`absolute ${topOffsetClass} ${rightOffsetClass} z-50 flex ${gapClass}`}>
         <button
           onClick={(e) => { e.stopPropagation(); onEdit(); }}
-          className="p-2 rounded-full text-white border border-white/20 shadow-lg bg-black/60"
+          className={buttonClass}
           title={t('tooltip.editCard')}
         >
-          <Edit2 className="w-4 h-4" />
+          <Edit2 className={iconClass} />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleVisibility(); }}
-          className="p-2 rounded-full transition-colors hover:bg-white/20 text-white border border-white/20 shadow-lg"
+          className={`${isCompactSpacer ? 'p-1' : 'p-2'} rounded-full transition-colors hover:bg-white/20 text-white border border-white/20 shadow-lg`}
           style={{ backgroundColor: isHidden ? 'rgba(239, 68, 68, 0.8)' : 'rgba(0, 0, 0, 0.6)' }}
           title={isHidden ? t('tooltip.showCard') : t('tooltip.hideCard')}
         >
-          {isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {isHidden ? <EyeOff className={iconClass} /> : <Eye className={iconClass} />}
         </button>
         {showResize && (
           <button
@@ -104,20 +121,20 @@ function EditOverlay({
               e.stopPropagation();
               onSaveSize(getNextSize(editId, currentSize));
             }}
-            className="p-2 rounded-full transition-colors hover:bg-purple-500/80 text-white border border-white/20 shadow-lg"
+            className={`${isCompactSpacer ? 'p-1' : 'p-2'} rounded-full transition-colors hover:bg-purple-500/80 text-white border border-white/20 shadow-lg`}
             style={{ backgroundColor: isSmall ? 'rgba(168, 85, 247, 0.8)' : 'rgba(0, 0, 0, 0.6)' }}
             title={isTriple ? 'Bytt storleik' : (isSmall ? t('tooltip.largeSize') : t('tooltip.smallSize'))}
           >
-            {isSmall ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+            {isSmall ? <Maximize2 className={iconClass} /> : <Minimize2 className={iconClass} />}
           </button>
         )}
         {canRemove && (
           <button
             onClick={(e) => { e.stopPropagation(); onRemove(); }}
-            className="p-2 rounded-full transition-colors hover:bg-red-500/80 text-white border border-white/20 shadow-lg bg-black/60"
+            className={`${isCompactSpacer ? 'p-1' : 'p-2'} rounded-full transition-colors hover:bg-red-500/80 text-white border border-white/20 shadow-lg bg-black/60`}
             title={t('tooltip.removeCard')}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className={iconClass} />
           </button>
         )}
       </div>
@@ -128,9 +145,9 @@ function EditOverlay({
           data-drag-handle
           {...dragHandleProps}
           style={{ touchAction: 'none' }}
-          className="flex items-center justify-center p-3 rounded-full bg-black/50 border border-white/10 text-white/80 shadow-lg pointer-events-auto"
+          className={dragHandleClass}
         >
-          <GripVertical className="w-5 h-5" />
+          <GripVertical className={dragIconClass} />
         </div>
       </div>
     </>
