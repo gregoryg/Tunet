@@ -33,7 +33,7 @@ const SpacerCard = ({
 
       {variant === 'divider' && (
         <div className="w-full">
-          <hr className="border-t border-[var(--glass-border)] opacity-40" />
+          <hr className="border-t border-[var(--text-muted)] opacity-30" />
         </div>
       )}
     </div>
