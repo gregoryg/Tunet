@@ -343,13 +343,23 @@ export default function AddCardContent({
                 key={v.key}
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setSelectedSpacerVariant(v.key); }}
-                className={`w-full text-left p-3 rounded-2xl transition-colors flex items-center justify-between group entity-item border ${isActive ? 'bg-blue-500/20 border-blue-500/50' : 'popup-surface popup-surface-hover border-transparent'}`}
+                className="w-full text-left p-3 rounded-2xl transition-colors flex items-center justify-between group entity-item border"
+                style={isActive
+                  ? { background: 'rgba(59,130,246,0.2)', borderColor: 'rgba(59,130,246,0.5)' }
+                  : { borderColor: 'transparent' }
+                }
               >
                 <div className="flex flex-col overflow-hidden mr-4">
-                  <span className={`text-sm font-bold transition-colors truncate ${isActive ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`}>{v.label}</span>
-                  <span className={`text-[11px] font-medium truncate ${isActive ? 'text-blue-200' : 'text-[var(--text-muted)] group-hover:text-gray-400'}`}>{v.desc}</span>
+                  <span className="text-sm font-bold transition-colors truncate" style={{ color: isActive ? '#fff' : undefined }}>{v.label}</span>
+                  <span className="text-[11px] font-medium truncate" style={{ color: isActive ? 'rgb(191,219,254)' : undefined }}>{v.desc}</span>
                 </div>
-                <div className={`p-2 rounded-full transition-colors flex-shrink-0 ${isActive ? 'bg-blue-500 text-white' : 'bg-[var(--glass-bg)] text-gray-500 group-hover:bg-green-500/20 group-hover:text-green-400'}`}>
+                <div
+                  className="p-2 rounded-full transition-colors flex-shrink-0"
+                  style={isActive
+                    ? { background: 'rgb(59,130,246)', color: '#fff' }
+                    : { background: 'var(--glass-bg)', color: 'rgb(107,114,128)' }
+                  }
+                >
                   {isActive ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 </div>
               </button>
