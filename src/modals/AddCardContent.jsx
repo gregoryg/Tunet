@@ -159,8 +159,6 @@ export default function AddCardContent({
   setSelectedNordpoolId,
   nordpoolDecimals,
   setNordpoolDecimals,
-  selectedSpacerVariant,
-  setSelectedSpacerVariant,
   onAddSelected,
   onAddRoom,
   conn,
@@ -325,56 +323,6 @@ export default function AddCardContent({
     </div>
   );
 
-  const renderSpacerSection = () => {
-    const variants = [
-      { key: 'spacer', label: getLabel('addCard.spacer.spacer', 'Spacer'), desc: getLabel('addCard.spacer.spacerDesc', 'Empty space to create gaps between cards') },
-      { key: 'divider', label: getLabel('addCard.spacer.divider', 'Divider'), desc: getLabel('addCard.spacer.dividerDesc', 'Horizontal line to separate sections') },
-    ];
-
-    return (
-      <div className="space-y-6">
-        <p className="text-xs uppercase font-bold text-gray-500 ml-4">{getLabel('addCard.spacer.selectVariant', 'Select variant')}</p>
-        <div className="space-y-3">
-          {variants.map(v => {
-            const isActive = selectedSpacerVariant === v.key;
-            return (
-              <button
-                key={v.key}
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setSelectedSpacerVariant(v.key); }}
-                className="w-full text-left p-3 rounded-2xl transition-colors flex items-center justify-between group entity-item border"
-                style={isActive
-                  ? { background: 'rgba(59,130,246,0.2)', borderColor: 'rgba(59,130,246,0.5)' }
-                  : { borderColor: 'transparent' }
-                }
-              >
-                <div className="flex flex-col overflow-hidden mr-4">
-                  <span className="text-sm font-bold transition-colors truncate" style={{ color: isActive ? '#fff' : undefined }}>{v.label}</span>
-                  <span className="text-[11px] font-medium truncate" style={{ color: isActive ? 'rgb(191,219,254)' : undefined }}>{v.desc}</span>
-                </div>
-                <div
-                  className="p-2 rounded-full transition-colors flex-shrink-0"
-                  style={isActive
-                    ? { background: 'rgb(59,130,246)', color: '#fff' }
-                    : { background: 'var(--glass-bg)', color: 'rgb(107,114,128)' }
-                  }
-                >
-                  {isActive ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); onAddSelected(); }}
-          className="w-full py-3 rounded-2xl bg-blue-500 text-white font-bold uppercase tracking-widest hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
-        >
-          {getLabel('addCard.add', 'Add')}
-        </button>
-      </div>
-    );
-  };
-
   const renderNordpoolSection = () => (
     <div className="space-y-8">
       <div>
@@ -538,7 +486,7 @@ export default function AddCardContent({
               : addCardType === 'androidtv' ? renderAndroidTVSection()
               : addCardType === 'calendar' ? renderSimpleAddSection(Calendar, t('addCard.calendarDescription') || 'Add a calendar card. You can select calendars after adding the card.', t('addCard.add'))
               : addCardType === 'todo' ? renderSimpleAddSection(ListChecks, t('addCard.todoDescription') || 'Add a to-do card. You can select which list to use after adding.', t('addCard.add'))
-              : addCardType === 'spacer' ? renderSpacerSection()
+              : addCardType === 'spacer' ? renderSimpleAddSection(Minus, t('addCard.spacerDescription') || 'Add a spacer or divider card. You can switch between spacer and divider in the edit settings.', t('addCard.add'))
               : addCardType === 'car' ? renderSimpleAddSection(Car, t('addCard.carDescription'), t('addCard.carCard'))
               : addCardType === 'nordpool' ? renderNordpoolSection()
               : addCardType === 'room' ? (
