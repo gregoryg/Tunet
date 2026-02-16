@@ -103,6 +103,7 @@ export default function DashboardGrid({
             ? (sizeSetting === 'small' ? 1 : (sizeSetting === 'medium' ? 2 : 4))
             : placement?.span;
           const settingsKey = getCardSettingsKey(id);
+          const settings = cardSettings[settingsKey] || cardSettings[id] || {};
           const heading = cardSettings[settingsKey]?.heading;
           const colSpan = placement?.colSpan || 1;
           const isSpacerCard = id.startsWith('spacer_card_');
@@ -115,8 +116,8 @@ export default function DashboardGrid({
           const gapPx = isMobile ? 12 : gridGapV;
           const rowPx = isMobile ? 82 : 100;
           let cardHeight;
-          if (isSpacerCard) {
-            cardHeight = gapPx;
+          if (id.startsWith('spacer_card_') && Number.isFinite(Number(settings.heightPx)) && Number(settings.heightPx) > 0) {
+            cardHeight = Math.max(40, Math.min(420, Number(settings.heightPx)));
           } else if (isLargeCard && sizeSetting !== 'small' && sizeSetting !== 'medium') {
             cardHeight = (4 * rowPx) + (3 * gapPx);
           } else {
@@ -135,7 +136,7 @@ export default function DashboardGrid({
                 height: `${cardHeight}px`,
               }}
             >
-              {heading && (
+              {heading && !isSpacerCard && (
                 <div className="absolute -top-4 left-2 text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--text-secondary)]">
                   {heading}
                 </div>

@@ -187,6 +187,37 @@ describe('useAddCard › onAddSelected', () => {
       }),
     );
   });
+
+  it('forwards selected spacer variant when spacer type is active', () => {
+    const props = makeProps({ showAddCardModal: true });
+    const { result } = renderHook(() => useAddCard(props));
+
+    act(() => result.current.setAddCardType('spacer'));
+    act(() => result.current.setSelectedSpacerVariant('spacer'));
+    act(() => result.current.onAddSelected());
+
+    expect(handleAddSelected).toHaveBeenCalledWith(
+      expect.objectContaining({
+        addCardType: 'spacer',
+        selectedSpacerVariant: 'spacer',
+      }),
+    );
+  });
+
+  it('uses spacer variant override when provided to onAddSelected', () => {
+    const props = makeProps({ showAddCardModal: true });
+    const { result } = renderHook(() => useAddCard(props));
+
+    act(() => result.current.setAddCardType('spacer'));
+    act(() => result.current.onAddSelected({ spacerVariant: 'spacer' }));
+
+    expect(handleAddSelected).toHaveBeenCalledWith(
+      expect.objectContaining({
+        addCardType: 'spacer',
+        selectedSpacerVariant: 'spacer',
+      }),
+    );
+  });
 });
 
 // ═════════════════════════════════════════════════════════════════════════

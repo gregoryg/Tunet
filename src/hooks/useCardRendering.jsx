@@ -13,6 +13,7 @@ export function useCardRendering({
   hiddenCards,
   isCardHiddenByLogic,
   gridColCount,
+  gridGapV,
   cardSettings,
   getCardSettingsKey,
   entities,
@@ -65,8 +66,10 @@ export function useCardRendering({
   const [draggingId, setDraggingId] = useState(null);
 
   const getCardGridSpan = useCallback((cardId) => {
-    return _getCardGridSpan(cardId, getCardSettingsKey, cardSettings, activePage);
-  }, [getCardSettingsKey, cardSettings, activePage]);
+    const rowPx = isMobile ? 82 : 100;
+    const gapPx = isMobile ? 12 : gridGapV;
+    return _getCardGridSpan(cardId, getCardSettingsKey, cardSettings, activePage, { rowPx, gapPx });
+  }, [getCardSettingsKey, cardSettings, activePage, isMobile, gridGapV]);
 
   const getCardColSpan = useCallback((cardId) => {
     return _getCardColSpan(cardId, getCardSettingsKey, cardSettings);

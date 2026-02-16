@@ -39,7 +39,7 @@ export function useAddCard({
   const [costSelectionTarget, setCostSelectionTarget] = useState('today');
   const [selectedNordpoolId, setSelectedNordpoolId] = useState(null);
   const [nordpoolDecimals, setNordpoolDecimals] = useState(2);
-  const [selectedSpacerVariant, setSelectedSpacerVariant] = useState('spacer');
+  const [selectedSpacerVariant, setSelectedSpacerVariant] = useState('divider');
 
   // ── Sync target page to active page ────────────────────────────────────
   useEffect(() => {
@@ -68,7 +68,7 @@ export function useAddCard({
       setCostSelectionTarget('today');
       setSelectedNordpoolId(null);
       setNordpoolDecimals(2);
-      setSelectedSpacerVariant('spacer');
+      setSelectedSpacerVariant('divider');
     }
   }, [showAddCardModal]);
 
@@ -146,13 +146,13 @@ export function useAddCard({
   };
 
   // ── Submit handler ─────────────────────────────────────────────────────
-  const onAddSelected = () => handleAddSelected({
+  const onAddSelected = (options = {}) => handleAddSelected({
     pagesConfig, persistConfig, addCardTargetPage, addCardType,
     selectedEntities, selectedWeatherId, selectedTempId,
     selectedAndroidTVMediaId, selectedAndroidTVRemoteId,
     selectedCostTodayId, selectedCostMonthId,
     selectedNordpoolId, nordpoolDecimals,
-    selectedSpacerVariant,
+    selectedSpacerVariant: options.spacerVariant || selectedSpacerVariant,
     cardSettings, persistCardSettings, getCardSettingsKey,
     setSelectedEntities, setShowAddCardModal,
     setSelectedWeatherId, setSelectedTempId,

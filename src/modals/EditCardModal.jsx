@@ -298,6 +298,15 @@ export default function EditCardModal({
 
           {isEditSpacer && editSettingsKey && (
             <div className="space-y-4">
+              {(() => {
+                const currentColSpan = typeof editSettings.colSpan === 'number' ? editSettings.colSpan : 1;
+                const isFullWidth = editSettings.colSpan === 'full';
+                const currentHeadingAlign = ['left', 'center', 'right'].includes(editSettings.headingAlign)
+                  ? editSettings.headingAlign
+                  : 'center';
+
+                return (
+                  <>
               <div className="space-y-2">
                 <label className="text-xs uppercase font-bold text-gray-500 ml-1">{t('spacer.variant') || 'Variant'}</label>
                 <div className="flex gap-2">
@@ -307,7 +316,13 @@ export default function EditCardModal({
                   ].map(v => (
                     <button
                       key={v.key}
-                      onClick={() => saveCardSetting(editSettingsKey, 'variant', v.key)}
+                      onClick={() => {
+                        saveCardSetting(editSettingsKey, 'variant', v.key);
+                        if (v.key === 'divider') {
+                          saveCardSetting(editSettingsKey, 'colSpan', 'full');
+                          saveCardSetting(editSettingsKey, 'heightPx', 40);
+                        }
+                      }}
                       className={`flex-1 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border transition-colors ${(editSettings.variant || 'spacer') === v.key ? 'bg-blue-500 text-white border-blue-500' : 'popup-surface popup-surface-hover text-[var(--text-secondary)]'}`}
                     >
                       {v.label}
@@ -317,25 +332,86 @@ export default function EditCardModal({
               </div>
 
               <div className="space-y-2">
+                <label className="text-xs uppercase font-bold text-gray-500 ml-1">{'Heading alignment'}</label>
+                <div className="flex gap-2">
+                  {[
+                    { key: 'left', label: 'Venstre' },
+                    { key: 'center', label: 'Midt' },
+                    { key: 'right', label: 'Høgre' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => saveCardSetting(editSettingsKey, 'headingAlign', opt.key)}
+                      className={`flex-1 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border transition-colors ${currentHeadingAlign === opt.key ? 'bg-blue-500 text-white border-blue-500' : 'popup-surface popup-surface-hover text-[var(--text-secondary)]'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-xs uppercase font-bold text-gray-500 ml-1">{'Column Width'}</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => saveCardSetting(editSettingsKey, 'colSpan', 'full')}
+                    className={`flex-1 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border transition-colors ${isFullWidth ? 'bg-blue-500 text-white border-blue-500' : 'popup-surface popup-surface-hover text-[var(--text-secondary)]'}`}
+                  >
+                    {'Full Width'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => saveCardSetting(editSettingsKey, 'colSpan', currentColSpan)}
+                    className={`flex-1 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border transition-colors ${!isFullWidth ? 'bg-blue-500 text-white border-blue-500' : 'popup-surface popup-surface-hover text-[var(--text-secondary)]'}`}
+                  >
+                    {'Custom'}
+                  </button>
+                </div>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => saveCardSetting(editSettingsKey, 'colSpan', Math.max(1, (editSettings.colSpan || 1) - 1))}
+                    onClick={() => saveCardSetting(editSettingsKey, 'colSpan', Math.max(1, currentColSpan - 1))}
+                    disabled={isFullWidth}
                     className="w-10 h-10 rounded-xl popup-surface popup-surface-hover text-[var(--text-primary)] font-bold text-lg flex items-center justify-center border border-[var(--glass-border)]"
                   >&minus;</button>
                   <div className="flex-1 text-center">
-                    <span className="text-lg font-bold text-[var(--text-primary)]">{editSettings.colSpan || 1}</span>
-                    <span className="text-xs text-[var(--text-muted)] ml-1">{(editSettings.colSpan || 1) === 1 ? 'column' : 'columns'}</span>
+                    <span className="text-lg font-bold text-[var(--text-primary)]">{isFullWidth ? '∞' : currentColSpan}</span>
+                    <span className="text-xs text-[var(--text-muted)] ml-1">{isFullWidth ? 'full width' : (currentColSpan === 1 ? 'column' : 'columns')}</span>
                   </div>
                   <button
                     type="button"
-                    onClick={() => saveCardSetting(editSettingsKey, 'colSpan', Math.min(4, (editSettings.colSpan || 1) + 1))}
+                    onClick={() => saveCardSetting(editSettingsKey, 'colSpan', Math.min(4, currentColSpan + 1))}
+                    disabled={isFullWidth}
                     className="w-10 h-10 rounded-xl popup-surface popup-surface-hover text-[var(--text-primary)] font-bold text-lg flex items-center justify-center border border-[var(--glass-border)]"
                   >+</button>
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <label className="text-xs uppercase font-bold text-gray-500 ml-1">{'Height'}</label>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => saveCardSetting(editSettingsKey, 'heightPx', Math.max(24, (editSettings.heightPx || 100) - 20))}
+                    className="w-10 h-10 rounded-xl popup-surface popup-surface-hover text-[var(--text-primary)] font-bold text-lg flex items-center justify-center border border-[var(--glass-border)]"
+                  >&minus;</button>
+                  <div className="flex-1 text-center">
+                    <span className="text-lg font-bold text-[var(--text-primary)]">{editSettings.heightPx || 100}</span>
+                    <span className="text-xs text-[var(--text-muted)] ml-1">px</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => saveCardSetting(editSettingsKey, 'heightPx', Math.min(420, (editSettings.heightPx || 100) + 20))}
+                    className="w-10 h-10 rounded-xl popup-surface popup-surface-hover text-[var(--text-primary)] font-bold text-lg flex items-center justify-center border border-[var(--glass-border)]"
+                  >+</button>
+                </div>
+              </div>
+
+                  </>
+                );
+              })()}
             </div>
           )}
 

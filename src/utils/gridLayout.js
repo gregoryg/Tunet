@@ -10,14 +10,14 @@
  * @param {Function} getCardSettingsKey  (cardId) => settingsKey
  * @param {Object}  cardSettings         Full card-settings map
  * @param {string}  activePage           Current active page id
- * @returns {number} 1 | 2 | 4
+ * @param {{rowPx?: number, gapPx?: number}} [layoutMetrics] Runtime layout metrics
+ * @returns {number} 1+
  */
 // Size-to-span mappings per card type category
 const SPAN_TABLE = {
   // { small, medium, large } → row span
   triSize:  { small: 1, medium: 2, default: 4 },   // calendar, todo
   dualSize: { small: 1, default: 2 },               // light, car, room
-  fixedOne: { default: 1 },                         // spacer (height via CSS)
 };
 
 const CARD_SPAN_RULES = [
@@ -28,13 +28,29 @@ const CARD_SPAN_RULES = [
   { prefix: 'light.',         category: 'dualSize' },
   { prefix: 'car_card_',      category: 'dualSize' },
   { prefix: 'room_card_',     category: 'dualSize' },
-  { prefix: 'spacer_card_',   category: 'fixedOne' },
+  { prefix: 'spacer_card_',   category: 'dualSize' },
 ];
 
-export const getCardGridSpan = (cardId, getCardSettingsKey, cardSettings, activePage) => {
+export const getCardGridSpan = (cardId, getCardSettingsKey, cardSettings, activePage, layoutMetrics = {}) => {
+  const settings = cardSettings[getCardSettingsKey(cardId)] || cardSettings[cardId] || {};
+  const rowPx = Number.isFinite(layoutMetrics?.rowPx) ? layoutMetrics.rowPx : 100;
+  const gapPx = Number.isFinite(layoutMetrics?.gapPx) ? layoutMetrics.gapPx : 20;
+
+  if (cardId.startsWith('spacer_card_')) {
+    const rawHeightPx = Number(settings.heightPx);
+    if (Number.isFinite(rawHeightPx) && rawHeightPx > 0) {
+      const estimatedRows = Math.ceil((rawHeightPx + gapPx) / (rowPx + gapPx));
+      return Math.max(1, estimatedRows);
+    }
+
+    const rawHeightRows = Number(settings.heightRows);
+    if (Number.isFinite(rawHeightRows) && rawHeightRows >= 1) {
+      return Math.max(1, Math.round(rawHeightRows));
+    }
+  }
+
   // Automations have their own logic based on type sub-setting
   if (cardId.startsWith('automation.')) {
-    const settings = cardSettings[getCardSettingsKey(cardId)] || cardSettings[cardId] || {};
     if (['sensor', 'entity', 'toggle'].includes(settings.type)) {
       return settings.size === 'small' ? 1 : 2;
     }
@@ -43,21 +59,21 @@ export const getCardGridSpan = (cardId, getCardSettingsKey, cardSettings, active
 
   // Exact-match for legacy 'car' id
   if (cardId === 'car') {
-    const sizeSetting = cardSettings[getCardSettingsKey(cardId)]?.size || cardSettings[cardId]?.size;
+    const sizeSetting = settings?.size;
     return sizeSetting === 'small' ? 1 : 2;
   }
 
   // Table-driven lookup for prefix-matched card types
   for (const rule of CARD_SPAN_RULES) {
     if (cardId.startsWith(rule.prefix)) {
-      const sizeSetting = cardSettings[getCardSettingsKey(cardId)]?.size || cardSettings[cardId]?.size;
+      const sizeSetting = settings?.size;
       const mapping = SPAN_TABLE[rule.category];
       return mapping[sizeSetting] ?? mapping.default;
     }
   }
 
   // Default behaviour for all other cards
-  const sizeSetting = cardSettings[getCardSettingsKey(cardId)]?.size || cardSettings[cardId]?.size;
+  const sizeSetting = settings?.size;
   if (sizeSetting === 'small') return 1;
   if (cardId.startsWith('weather_temp_')) return 2;
   if (activePage === 'settings' && cardId !== 'car' && !cardId.startsWith('media_player')) return 1;
@@ -75,6 +91,7 @@ export const getCardGridSpan = (cardId, getCardSettingsKey, cardSettings, active
  */
 export const getCardColSpan = (cardId, getCardSettingsKey, cardSettings) => {
   const settings = cardSettings[getCardSettingsKey(cardId)] || cardSettings[cardId] || {};
+  if (settings.colSpan === 'full') return Number.MAX_SAFE_INTEGER;
   return settings.colSpan || 1;
 };
 

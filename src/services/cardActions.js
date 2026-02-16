@@ -215,7 +215,14 @@ export const handleAddSelected = (ctx) => {
 
     case 'spacer': {
       const cardId = `spacer_card_${Date.now()}`;
-      commitSingleCard(cardId, { variant: selectedSpacerVariant || 'spacer' });
+      const variant = selectedSpacerVariant || 'spacer';
+      const initialSettings = {
+        variant,
+        colSpan: 'full',
+        heightPx: 40,
+        headingAlign: 'center',
+      };
+      commitSingleCard(cardId, initialSettings);
       return;
     }
 

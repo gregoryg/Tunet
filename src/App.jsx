@@ -314,6 +314,7 @@ function AppContent({ showOnboarding, setShowOnboarding }) {
     hiddenCards,
     isCardHiddenByLogic,
     gridColCount,
+    gridGapV,
     cardSettings,
     getCardSettingsKey,
     entities,

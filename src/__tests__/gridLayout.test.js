@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCardGridSpan, buildGridLayout } from '../utils/gridLayout';
+import { getCardGridSpan, getCardColSpan, buildGridLayout } from '../utils/gridLayout';
 
 // ═════════════════════════════════════════════════════════════════════════
 // getCardGridSpan
@@ -80,6 +80,28 @@ describe('getCardGridSpan', () => {
     expect(getCardGridSpan('room_card_1', identity, {}, 'home')).toBe(2);
   });
 
+  it('returns estimated spacer span when heightPx is set', () => {
+    const settings = { 'spacer_card_1': { heightPx: 260 } };
+    expect(getCardGridSpan('spacer_card_1', identity, settings, 'home')).toBe(3);
+  });
+
+  it('supports legacy spacer heightRows setting', () => {
+    const settings = { 'spacer_card_1': { heightRows: 3 } };
+    expect(getCardGridSpan('spacer_card_1', identity, settings, 'home')).toBe(3);
+  });
+
+  it('uses runtime row/gap metrics for spacer heightPx span', () => {
+    const settings = { 'spacer_card_1': { heightPx: 420 } };
+    const metrics = { rowPx: 82, gapPx: 12 };
+    expect(getCardGridSpan('spacer_card_1', identity, settings, 'home', metrics)).toBe(5);
+  });
+
+  it('falls back to size behavior for spacer when heightRows is not set', () => {
+    const settings = { 'spacer_card_1': { size: 'small' } };
+    expect(getCardGridSpan('spacer_card_1', identity, settings, 'home')).toBe(1);
+    expect(getCardGridSpan('spacer_card_2', identity, {}, 'home')).toBe(2);
+  });
+
   it('uses getCardSettingsKey to resolve settings', () => {
     const keyFn = (id) => `page_home_${id}`;
     const settings = { 'page_home_light_abc': { size: 'small' } };
@@ -131,5 +153,19 @@ describe('buildGridLayout', () => {
 
   it('returns empty object for empty ids', () => {
     expect(buildGridLayout([], 4, spanOf(1))).toEqual({});
+  });
+});
+
+describe('getCardColSpan', () => {
+  const identity = (id) => id;
+
+  it('returns full width sentinel for colSpan=full', () => {
+    const settings = { 'spacer_card_1': { colSpan: 'full' } };
+    expect(getCardColSpan('spacer_card_1', identity, settings)).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  it('returns numeric colSpan when provided', () => {
+    const settings = { 'spacer_card_1': { colSpan: 3 } };
+    expect(getCardColSpan('spacer_card_1', identity, settings)).toBe(3);
   });
 });
