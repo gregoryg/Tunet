@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Spacer/Divider card type now supports full-width layout mode, heading alignment (left/center/right), and inline divider heading rendering.
+
+### Changed
+- Add Card modal now includes a working Spacer/Divider variant selector and applies the selected variant when adding.
+- Divider defaults are now applied at creation (full row width, standard 40px height, centered heading alignment).
+- Edit-mode overlay controls adapt better for low-height divider/spacer cards.
+
+### Fixed
+- Spacer/Divider card settings now persist correctly through Profiles snapshot save/load.
+- Fixed Add Card variant state sync where Spacer/Divider selection could be overridden and always insert Divider.
+
 ## [1.0.0-beta.17] — 2026-02-15
 
 ### Changed
