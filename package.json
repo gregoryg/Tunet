@@ -23,7 +23,8 @@
     "test:watch": "vitest",
     "release:prep": "node scripts/release.mjs prep",
     "release:check": "node scripts/release.mjs check",
-    "release": "npm run release:check ; npm run test ; npm run build"
+    "release:publish": "node scripts/release.mjs publish",
+    "release": "npm run release:check ; npm run test ; npm run build ; npm run release:publish"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",

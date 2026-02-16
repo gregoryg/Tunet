@@ -1,5 +1,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 const root = process.cwd();
 
@@ -13,7 +17,7 @@ const paths = {
 };
 
 function usage() {
-  console.log(`\nUsage:\n  npm run release:check\n  npm run release:prep -- --app-version 1.0.0-beta.11 --addon-version 1.0.8 [--date 2026-02-14]\n`);
+  console.log(`\nUsage:\n  npm run release:check\n  npm run release:prep -- --app-version 1.0.0-beta.11 --addon-version 1.0.8 [--date 2026-02-14]\n  npm run release:publish\n`);
 }
 
 function fail(message) {
@@ -77,6 +81,63 @@ function upsertMainChangelogEntry(changelog, appVersion, releaseDate) {
 
   const insertAt = idx + semverAnchor.length;
   return `${changelog.slice(0, insertAt)}\n\n${heading}\n\n${body}\n${changelog.slice(insertAt)}`;
+}
+
+function extractMainChangelogNotes(changelog, appVersion) {
+  const headingRegex = new RegExp(`^## \\[${appVersion.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\$&')}\\].*$`, 'm');
+  const headingMatch = changelog.match(headingRegex);
+  if (!headingMatch || headingMatch.index === undefined) {
+    return `Release ${appVersion}`;
+  }
+
+  const start = headingMatch.index + headingMatch[0].length;
+  const rest = changelog.slice(start);
+  const nextHeadingMatch = rest.match(/^##\s+/m);
+  const end = nextHeadingMatch && nextHeadingMatch.index !== undefined
+    ? start + nextHeadingMatch.index
+    : changelog.length;
+
+  const sectionBody = changelog.slice(start, end).trim();
+  return sectionBody || `Release ${appVersion}`;
+}
+
+function isPreRelease(version) {
+  return /-(alpha|beta|rc)/i.test(version);
+}
+
+async function runPublish() {
+  const [pkg, changelog] = await Promise.all([
+    readJson(paths.pkg),
+    readFile(paths.changelog, 'utf8'),
+  ]);
+
+  const appVersion = pkg.version;
+  if (!appVersion) fail('Missing package.json version.');
+
+  const tag = `v${appVersion}`;
+
+  try {
+    await execFileAsync('git', ['rev-parse', '--verify', tag], { cwd: root });
+  } catch {
+    fail(`Tag ${tag} does not exist locally. Create/tag before running release:publish.`);
+  }
+
+  try {
+    await execFileAsync('gh', ['release', 'view', tag], { cwd: root });
+    console.log(`ℹ️ GitHub release ${tag} already exists. Skipping publish.`);
+    return;
+  } catch {
+    // not found, continue with create
+  }
+
+  const notes = extractMainChangelogNotes(changelog, appVersion);
+  const createArgs = ['release', 'create', tag, '--title', tag, '--notes', notes];
+  if (isPreRelease(appVersion)) {
+    createArgs.push('--prerelease');
+  }
+
+  await execFileAsync('gh', createArgs, { cwd: root, maxBuffer: 1024 * 1024 * 4 });
+  console.log(`✅ Published GitHub release ${tag}${isPreRelease(appVersion) ? ' (pre-release)' : ''}.`);
 }
 
 async function runCheck() {
@@ -180,6 +241,11 @@ async function main() {
 
   if (command === 'prep') {
     await runPrep(args);
+    return;
+  }
+
+  if (command === 'publish') {
+    await runPublish();
     return;
   }
 
