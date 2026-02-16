@@ -109,16 +109,16 @@ describe('buildGridLayout', () => {
 
   it('places single-span cards in a 2-col grid', () => {
     const result = buildGridLayout(['a', 'b', 'c'], 2, spanOf(1));
-    expect(result.a).toEqual({ row: 1, col: 1, span: 1 });
-    expect(result.b).toEqual({ row: 1, col: 2, span: 1 });
-    expect(result.c).toEqual({ row: 2, col: 1, span: 1 });
+    expect(result.a).toEqual({ row: 1, col: 1, span: 1, colSpan: 1 });
+    expect(result.b).toEqual({ row: 1, col: 2, span: 1, colSpan: 1 });
+    expect(result.c).toEqual({ row: 2, col: 1, span: 1, colSpan: 1 });
   });
 
   it('places double-span cards correctly', () => {
     const result = buildGridLayout(['a', 'b'], 2, spanOf(2));
     // Each span-2 card fills both columns of one row
-    expect(result.a).toEqual({ row: 1, col: 1, span: 2 });
-    expect(result.b).toEqual({ row: 1, col: 2, span: 2 });
+    expect(result.a).toEqual({ row: 1, col: 1, span: 2, colSpan: 1 });
+    expect(result.b).toEqual({ row: 1, col: 2, span: 2, colSpan: 1 });
   });
 
   it('handles mixed spans', () => {
