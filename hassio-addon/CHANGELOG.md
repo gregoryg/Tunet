@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+
+- Includes dashboard release `1.2.0`.
+- Added Sonos favorites browse/play and Music Assistant browse support.
+- Added Cover artwork mode for Media cards.
+- Includes Media Page Sonos enhancements and related bug fixes.
+
 ## 1.1.0
 
 ### Changed

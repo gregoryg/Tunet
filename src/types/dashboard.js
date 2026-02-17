@@ -250,6 +250,8 @@
  * @property {(value: string | null) => void} setSelectedNordpoolId
  * @property {number} nordpoolDecimals
  * @property {(value: number) => void} setNordpoolDecimals
+ * @property {string} selectedSpacerVariant
+ * @property {(value: string) => void} setSelectedSpacerVariant
  * @property {() => void} onAddSelected
  * @property {() => string} getAddCardAvailableLabel
  * @property {() => string} getAddCardNoneLeftLabel

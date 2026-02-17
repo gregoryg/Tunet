@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] — 2026-02-17
+
+### Added
+- Sonos favorites browsing and play support from media browse results.
+- Music Assistant browse integration for playlists and library choices.
+- Cover artwork display mode for Media cards (selectable in Edit Card).
+
+### Changed
+- Media Page Sonos workflow with improved player selection, grouping, and media picker tabs.
+- Improved responsive behavior for compact media controls and small vacuum cards.
+
+### Fixed
+- Media card settings wiring for artwork mode and edit modal visibility.
+- Sonos detection and favorites fallback handling across media surfaces.
+
+
 ## [1.1.0] — 2026-02-16
 
 ### Changed
