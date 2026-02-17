@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] — 2026-02-17
+
+### Added
+- Conditional card visibility builder in Edit Card modal with support for state, not-state, numeric, and attribute rules.
+- Multi-rule visibility logic (AND/OR) with optional per-rule duration and entity targeting.
+
+### Changed
+- Unified visibility condition evaluation in shared utilities for cards and status pills.
+- Added/updated translations for visibility configuration in English, Bokmål, Nynorsk, and Swedish.
+
+### Fixed
+- Card hide/show logic now consistently respects configured visibility conditions, including mapped entity IDs.
+
+
 ## [1.2.0] — 2026-02-17
 
 ### Added

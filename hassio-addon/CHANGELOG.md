@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+
+- Includes dashboard release `1.2.1`.
+- Added conditional card visibility configuration in Edit Card modal.
+- Added advanced visibility rules (AND/OR, duration, and entity targeting).
+- Improved visibility-condition handling consistency across cards and status pills.
+
 ## 1.2.0
 
 - Includes dashboard release `1.2.0`.

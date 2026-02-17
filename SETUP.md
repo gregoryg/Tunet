@@ -123,7 +123,7 @@ Dashboard layout is stored in `localStorage`. Profiles are stored server-side in
 1. Prepare synchronized versions/changelogs:
 
 ```bash
-npm run release:prep -- --app-version 1.0.0-beta.18 --addon-version 1.0.15
+npm run release:prep -- --version 1.0.0-beta.18
 ```
 
 2. Validate metadata consistency:
