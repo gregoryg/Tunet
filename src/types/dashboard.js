@@ -104,6 +104,20 @@
  */
 
 /**
+ * @typedef {Object} VisibilityCondition
+ * @property {'state' | 'not_state' | 'numeric' | 'attribute'} [type]
+ * @property {string[]} [states]
+ * @property {'>' | '<' | '>=' | '<=' | '=='} [operator]
+ * @property {string | number} [value]
+ * @property {string} [attribute]
+ * @property {number} [forSeconds]
+ * @property {string} [entityId]
+ * @property {'AND' | 'OR'} [logic]
+ * @property {boolean} [enabled]
+ * @property {VisibilityCondition[]} [rules]
+ */
+
+/**
  * @typedef {Record<string, Record<string, unknown>>} CardSettingsMap
  */
 

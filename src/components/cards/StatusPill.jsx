@@ -1,5 +1,6 @@
 import { getIconComponent } from '../../icons';
 import { Activity, Clapperboard } from '../../icons';
+import { evaluateEntityCondition } from '../../utils/conditionUtils';
 
 /**
  * Generic configurable status pill
@@ -24,46 +25,7 @@ export default function StatusPill({
   isMobile
 }) {
   if (!pill) return null;
-  
-  // Check visibility conditions (defined early to avoid hoisting issues)
-  const checkCondition = (condition, checkEntity, getAttr) => {
-    if (!condition) return true;
-    
-    const { type, states, attribute, value, operator } = condition;
-    const entityToCheck = checkEntity || entity;
-    
-    if (!entityToCheck) return false;
-    
-    switch (type) {
-      case 'state':
-        return states && states.includes(entityToCheck.state);
-      case 'not_state':
-        return states && !states.includes(entityToCheck.state);
-      case 'numeric': {
-        const numericValue = parseFloat(entityToCheck.state);
-        const compareValue = parseFloat(value);
-        if (isNaN(numericValue) || isNaN(compareValue)) return false;
-        switch (operator) {
-          case '>': return numericValue > compareValue;
-          case '<': return numericValue < compareValue;
-          case '>=': return numericValue >= compareValue;
-          case '<=': return numericValue <= compareValue;
-          case '==': return numericValue === compareValue;
-          default: return false;
-        }
-      }
-      case 'attribute': {
-        const attrValue = getAttr ? getAttr(entityToCheck.entity_id, attribute) : entityToCheck.attributes?.[attribute];
-        if (value === undefined || value === null || value === '') {
-          return attrValue !== undefined && attrValue !== null;
-        }
-        return String(attrValue) === String(value);
-      }
-      default:
-        return true;
-    }
-  };
-  
+
   // Handle media_player / emby / sonos type differently
   if (pill.type === 'media_player' || pill.type === 'emby' || pill.type === 'sonos') {
     // entity should be an array of media player entities
@@ -75,7 +37,7 @@ export default function StatusPill({
       // For media_player, check if ANY entity meets condition
       const meetsCondition = activeEntities.some(e => {
         const tempEntity = e;
-        if (!checkCondition(pill.condition, tempEntity, getA)) return false;
+        if (!evaluateEntityCondition({ condition: pill.condition, entity: tempEntity, getAttribute: getA })) return false;
         return true;
       });
       if (!meetsCondition && activeEntities.length === 0) return null;
@@ -167,7 +129,7 @@ export default function StatusPill({
   // Original conditional pill logic
   if (!entity) return null;
 
-  if (!checkCondition(pill.condition, entity, getA)) return null;
+  if (!evaluateEntityCondition({ condition: pill.condition, entity, getAttribute: getA })) return null;
 
   // Get display values
   const label = pill.label || entity.attributes?.friendly_name || entity.entity_id;

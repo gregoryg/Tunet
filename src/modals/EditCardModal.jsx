@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Check, Plus, RefreshCw } from 'lucide-react';
 import IconPicker from '../components/ui/IconPicker';
+import ConditionBuilder from '../components/ui/ConditionBuilder';
 import { getEntitiesForArea } from '../services/haClient';
 
 function GraphLimitsSlider({ values, onChange, min = -15, max = 35 }) {
@@ -309,6 +310,7 @@ export default function EditCardModal({
     .map(([id]) => id));
 
   const updateButtonOptions = sortByName(byDomain('button'));
+  const visibilityCondition = editSettings?.visibilityCondition || null;
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4" style={{
@@ -380,6 +382,19 @@ export default function EditCardModal({
                 onClear={() => saveCustomIcon(entityId, null)}
                 t={t}
                 maxHeightClass="max-h-48"
+              />
+            </div>
+          )}
+
+          {editSettingsKey && (
+            <div className="space-y-3">
+              <ConditionBuilder
+                cardId={entityId}
+                cardSettings={editSettings}
+                condition={visibilityCondition}
+                entities={entities}
+                onChange={(nextCondition) => saveCardSetting(editSettingsKey, 'visibilityCondition', nextCondition)}
+                t={t}
               />
             </div>
           )}

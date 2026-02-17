@@ -123,6 +123,150 @@ describe('isCardHiddenByLogic', () => {
       entities: { 'switch.lamp': { state: 'on' } }
     })).toBe(false);
   });
+
+  it('hides card when visibilityCondition does not match', () => {
+    expect(isCardHiddenByLogic('switch.lamp', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'switch.lamp': {
+          visibilityCondition: { type: 'state', states: ['off'] },
+        },
+      },
+      entities: { 'switch.lamp': { entity_id: 'switch.lamp', state: 'on', attributes: {} } },
+    })).toBe(true);
+  });
+
+  it('shows card when visibilityCondition matches', () => {
+    expect(isCardHiddenByLogic('switch.lamp', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'switch.lamp': {
+          visibilityCondition: { type: 'state', states: ['on'] },
+        },
+      },
+      entities: { 'switch.lamp': { entity_id: 'switch.lamp', state: 'on', attributes: {} } },
+    })).toBe(false);
+  });
+
+  it('uses mapped entityId for visibilityCondition checks', () => {
+    expect(isCardHiddenByLogic('weather_temp_1', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'weather_temp_1': {
+          entityId: 'weather.home',
+          visibilityCondition: { type: 'state', states: ['sunny'] },
+        },
+      },
+      entities: {
+        'weather.home': { entity_id: 'weather.home', state: 'rainy', attributes: {} },
+      },
+    })).toBe(true);
+  });
+
+  it('applies AND logic across two visibility rules', () => {
+    expect(isCardHiddenByLogic('switch.lamp', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'switch.lamp': {
+          visibilityCondition: {
+            logic: 'AND',
+            rules: [
+              { type: 'state', states: ['on'] },
+              { type: 'attribute', attribute: 'friendly_name', value: 'Desk Lamp' },
+            ],
+          },
+        },
+      },
+      entities: { 'switch.lamp': { entity_id: 'switch.lamp', state: 'on', attributes: { friendly_name: 'Desk Lamp' } } },
+    })).toBe(false);
+  });
+
+  it('applies OR logic across two visibility rules', () => {
+    expect(isCardHiddenByLogic('switch.lamp', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'switch.lamp': {
+          visibilityCondition: {
+            logic: 'OR',
+            rules: [
+              { type: 'state', states: ['off'] },
+              { type: 'attribute', attribute: 'friendly_name', value: 'Desk Lamp' },
+            ],
+          },
+        },
+      },
+      entities: { 'switch.lamp': { entity_id: 'switch.lamp', state: 'on', attributes: { friendly_name: 'Desk Lamp' } } },
+    })).toBe(false);
+  });
+
+  it('supports duration in seconds for rule matching', () => {
+    expect(isCardHiddenByLogic('switch.lamp', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'switch.lamp': {
+          visibilityCondition: {
+            rules: [
+              { type: 'state', states: ['off'], forSeconds: 10 },
+            ],
+          },
+        },
+      },
+      entities: {
+        'switch.lamp': {
+          entity_id: 'switch.lamp',
+          state: 'off',
+          last_changed: '2020-01-01T00:00:00Z',
+          attributes: {},
+        },
+      },
+    })).toBe(false);
+  });
+
+  it('supports different entity on second rule', () => {
+    expect(isCardHiddenByLogic('switch.lamp', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'switch.lamp': {
+          visibilityCondition: {
+            logic: 'AND',
+            rules: [
+              { type: 'state', states: ['on'] },
+              { type: 'state', states: ['home'], entityId: 'person.me' },
+            ],
+          },
+        },
+      },
+      entities: {
+        'switch.lamp': { entity_id: 'switch.lamp', state: 'on', attributes: {} },
+        'person.me': { entity_id: 'person.me', state: 'home', attributes: {} },
+      },
+    })).toBe(false);
+  });
+
+  it('ignores stored visibilityCondition when enabled is false', () => {
+    expect(isCardHiddenByLogic('switch.lamp', {
+      activePage: 'home',
+      getCardSettingsKey: identity,
+      cardSettings: {
+        'switch.lamp': {
+          visibilityCondition: {
+            enabled: false,
+            rules: [
+              { type: 'state', states: ['off'] },
+            ],
+          },
+        },
+      },
+      entities: { 'switch.lamp': { entity_id: 'switch.lamp', state: 'on', attributes: {} } },
+    })).toBe(false);
+  });
 });
 
 // ═════════════════════════════════════════════════════════════════════════

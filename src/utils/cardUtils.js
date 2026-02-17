@@ -3,6 +3,8 @@
  * These are extracted from App.jsx to reduce file size and improve testability.
  */
 
+import { evaluateVisibilityConditionConfig, isConditionConfigured, resolveConditionEntityId } from './conditionUtils';
+
 /** Prefixes for card types that can always be removed from user pages. */
 const REMOVABLE_PREFIXES = [
   'light_', 'light.', 'vacuum.', 'media_player.', 'media_group_',
@@ -39,13 +41,15 @@ export function isCardRemovable(cardId, pageId, { getCardSettingsKey, cardSettin
  * Determine whether a card should be hidden in view mode based on entity availability.
  */
 export function isCardHiddenByLogic(cardId, { activePage, getCardSettingsKey, cardSettings, entities }) {
+  const settingsKey = getCardSettingsKey(cardId);
+  const cardConfig = cardSettings[settingsKey] || cardSettings[cardId] || {};
+
   if (cardId === 'media_player') {
     return true;
   }
 
   if (cardId.startsWith('media_group_')) {
-    const settingsKey = getCardSettingsKey(cardId);
-    const groupSettings = cardSettings[settingsKey] || cardSettings[cardId] || {};
+    const groupSettings = cardConfig;
     const selectedIds = Array.isArray(groupSettings.mediaIds) ? groupSettings.mediaIds : [];
     const hasEntities = selectedIds.some(id => entities[id]);
     return !hasEntities;
@@ -61,6 +65,22 @@ export function isCardHiddenByLogic(cardId, { activePage, getCardSettingsKey, ca
   if (!isSpecialCard && !entities[cardId]) {
      if (cardId.startsWith('light_') || cardId.startsWith('light.')) return false;
      return true;
+  }
+
+  if (isConditionConfigured(cardConfig.visibilityCondition)) {
+    const targetEntityId = resolveConditionEntityId(cardId, cardConfig, entities);
+    if (!targetEntityId) return false;
+    const targetEntity = entities[targetEntityId];
+    if (!targetEntity) return false;
+
+    const shouldShow = evaluateVisibilityConditionConfig({
+      condition: cardConfig.visibilityCondition,
+      entity: targetEntity,
+      entities,
+      fallbackEntityId: targetEntityId,
+    });
+
+    return !shouldShow;
   }
 
   return false;
