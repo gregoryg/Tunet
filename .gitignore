@@ -9,20 +9,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 Thumbs.db
-
 # IDE folders
-.vscode/*
-!.vscode/tasks.json
+.vscode/
 .idea/
 *.swp
 *.swo
 *.swn
-
 # Coverage and test output
 coverage/
 *.lcov
 .nyc_output/
-
 # Local SQLite database
 data/
-
